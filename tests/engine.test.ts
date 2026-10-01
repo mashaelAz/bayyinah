@@ -127,3 +127,9 @@ test('تلوين الحكم بصري فقط', () => {
   assert.equal(gradeTone('لا يصح'), 'weak');
   assert.equal(gradeTone('غريب من هذا الوجه'), 'neutral');
 });
+
+test('إشارة المصدر على البطاقة تُستبعد من البحث', () => {
+  const r = extractSearchText('قال رسول الله ﷺ:\nالبخيل من ذكرت عنده فلم يصل علي\nصحيح الترمذي ٣٥٤٦');
+  assert.equal(r.searchText, 'البخيل من ذكرت عنده فلم يصل علي');
+  assert.equal(r.extraPhrases.length, 1);
+});

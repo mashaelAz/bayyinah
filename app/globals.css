@@ -288,3 +288,10 @@ details.raw summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 .footer .disclaimer { margin-top: 22px; color: #a9b9af; font-size: 13px; max-width: 80ch; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* ——— ماذا تفعل الآن ——— */
+.next-steps { background: var(--gold-soft); border: 1px solid var(--gold-2); border-radius: 14px; padding: 18px 22px; }
+.next-steps h3 { margin: 0 0 6px; font-size: 18px; color: var(--pine); }
+.next-steps p { margin: 0 0 8px; }
+.next-steps ol { margin: 0; padding-inline-start: 22px; display: grid; gap: 6px; }
+.alert-warn { background: var(--gold-soft); color: #4f3d12; border: 1px solid var(--gold-2); }

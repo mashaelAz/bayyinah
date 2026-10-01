@@ -21,7 +21,13 @@ const TYPE_NOTE: Partial<Record<VerificationResult['extraction']['contentType'],
   saying: 'يبدو أن النص قول منسوب إلى عالم، وليس حديثًا نبويًا.',
 };
 
-export default function ResultCard({ result }: { result: VerificationResult }) {
+interface Props {
+  result: VerificationResult;
+  onRetry?: () => void;
+  onEdit?: () => void;
+}
+
+export default function ResultCard({ result, onRetry, onEdit }: Props) {
   const { status, best, extraction, diff } = result;
   const grade = best?.record.grade?.trim() || null;
   const tone = gradeTone(grade);
@@ -184,18 +190,50 @@ export default function ResultCard({ result }: { result: VerificationResult }) {
         </>
       ) : null}
 
-      {status === 'needs_review' || status === 'not_found' ? (
-        <div className="escalate">
-          <strong>{status === 'needs_review' ? 'هذه الحالة تحتاج إلى مراجعة متخصصة' : 'قبل إعادة النشر'}</strong>
-          {status === 'needs_review'
-            ? 'لم نعثر على دليل كافٍ لإعطاء نتيجة موثقة تلقائيًا. راجع المصدر أو أهل الاختصاص قبل إعادة نشر النص.'
-            : 'لم نعثر على تطابق كافٍ في المصادر المتاحة. ابحث في المصدر بنفسك أو اسأل أهل الاختصاص، ولا تنسب النص إلى النبي ﷺ دون تثبّت.'}
+      {status === 'needs_review' || status === 'not_found' || status === 'source_unavailable' ? (
+        <section className="next-steps" aria-labelledby="next-title">
+          <h3 id="next-title">ماذا تفعل الآن؟</h3>
+          <p>
+            {status === 'source_unavailable'
+              ? 'لم نتمكن من الوصول إلى الدرر السنية الآن، فلم نصدر نتيجة. جرّب واحدًا من هذه:'
+              : status === 'needs_review'
+                ? 'هذه الحالة تحتاج إلى مراجعة متخصصة؛ لم نعثر على دليل كافٍ لإعطاء نتيجة موثقة تلقائيًا. جرّب واحدًا من هذه:'
+                : 'لم نعثر على تطابق كافٍ في المصادر المتاحة. ولا تنسب النص إلى النبي ﷺ قبل التثبّت. جرّب واحدًا من هذه:'}
+          </p>
+          <ol>
+            {extraction.contentType === 'unknown' || status === 'not_found' ? (
+              <li>
+                <b>تأكد من النص.</b> إذا كان من صورة، قارن النص المقروء بالبطاقة وصحّح الكلمات الخاطئة، واكتب نص الحديث فقط.
+              </li>
+            ) : null}
+            {status === 'source_unavailable' ? (
+              <li>
+                <b>أعد المحاولة بعد لحظات.</b> قد يكون الاتصال بالمصدر بطيئًا مؤقتًا.
+              </li>
+            ) : null}
+            <li>
+              <b>جرّب جزءًا أقصر ومميزًا من الحديث،</b> مثل أول 4 إلى 6 كلمات.
+            </li>
+            <li>
+              <b>ابحث في المصدر بنفسك</b> بالرابط أدناه، أو اسأل أهل الاختصاص قبل إعادة النشر.
+            </li>
+          </ol>
           <div className="actions">
+            {onEdit ? (
+              <button className="btn btn-primary btn-small" onClick={onEdit}>
+                تعديل النص
+              </button>
+            ) : null}
+            {onRetry && status === 'source_unavailable' ? (
+              <button className="btn btn-ghost btn-small" onClick={onRetry}>
+                إعادة المحاولة
+              </button>
+            ) : null}
             <a className="btn btn-ghost btn-small" href={result.searchUrl} target="_blank" rel="noopener noreferrer">
               ابحث في الدرر السنية بنفسك
             </a>
           </div>
-        </div>
+        </section>
       ) : null}
 
       <EvidenceTrail steps={result.evidence} />

@@ -48,6 +48,9 @@ export default function VerifyPanel({ autoText }: Props) {
   const [stepIndex, setStepIndex] = useState(0);
   const [ocrProgress, setOcrProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [ocrQuality, setOcrQuality] = useState<number | null>(null);
+  const [lastOpts, setLastOpts] = useState<{ fromImage: boolean; extractedText: string }>({ fromImage: false, extractedText: '' });
+  const editRef = useRef<HTMLTextAreaElement>(null);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -76,6 +79,7 @@ export default function VerifyPanel({ autoText }: Props) {
     }
     setError(null);
     setResult(null);
+    setLastOpts(opts);
     setPhase('verifying');
     setStepIndex(0);
     const timer = setInterval(() => setStepIndex((i) => Math.min(i + 1, VERIFY_STEPS.length - 1)), 700);
@@ -138,15 +142,17 @@ export default function VerifyPanel({ autoText }: Props) {
           setOcrProgress(Math.round(p.progress * 100));
         }
       });
-      if (!out.trim()) throw new Error('empty');
-      setExtracted(out);
-      setText(out);
+      if (!out.text.trim()) throw new Error('empty');
+      setOcrQuality(out.quality);
+      setExtracted(out.text);
+      setText(out.text);
       setFromImage(true);
       setPhase('review');
     } catch {
       setPhase('review');
       setExtracted('');
       setText('');
+      setOcrQuality(0);
       setFromImage(true);
       setError('لم نتمكن من قراءة النص بوضوح. يمكنك كتابة النص يدويًا أدناه أو تجربة صورة أوضح.');
     }
@@ -169,6 +175,7 @@ export default function VerifyPanel({ autoText }: Props) {
     setPreview(null);
     setExtracted('');
     setText('');
+    setOcrQuality(null);
     setFromImage(false);
   }
 
@@ -260,8 +267,15 @@ export default function VerifyPanel({ autoText }: Props) {
               <label className="field-label" htmlFor="ocr-text">
                 النص المستخرج
               </label>
+              {ocrQuality !== null && ocrQuality < 0.7 && text.trim() ? (
+                <div className="alert alert-warn" role="status" style={{ marginTop: 0, marginBottom: 10 }}>
+                  <strong>قراءة الصورة غير واضحة.</strong> الخط في البطاقة مزخرف أو ملوّن، فقد تكون بعض الكلمات خاطئة. امسح النص
+                  واكتب نص الحديث كما تراه في الصورة، ثم اضغط «متابعة التحقق».
+                </div>
+              ) : null}
               <textarea
                 id="ocr-text"
+                ref={editRef}
                 className="input"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -346,7 +360,23 @@ export default function VerifyPanel({ autoText }: Props) {
         </div>
       ) : null}
 
-      <div ref={resultRef}>{result ? <ResultCard result={result} /> : null}</div>
+      <div ref={resultRef}>
+        {result ? (
+          <ResultCard
+            result={result}
+            onRetry={() => runVerify(text, lastOpts)}
+            onEdit={() => {
+              setResult(null);
+              setPhase(lastOpts.fromImage ? 'review' : 'idle');
+              setTimeout(() => {
+                const el = lastOpts.fromImage ? editRef.current : (document.getElementById('input-text') as HTMLTextAreaElement | null);
+                el?.focus();
+                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 50);
+            }}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -177,7 +177,7 @@ export async function verifyText(input: VerifyInput, deps: VerifyDeps): Promise<
         searchUrl,
       };
     }
-    evidence.push({ label: 'تعذر الاتصال المباشر بالمصدر', detail: 'استُخدمت النسخة المخزنة الموثقة' });
+    evidence.push({ label: 'تعذر الاتصال المباشر بالمصدر', detail: `السبب: ${(err as Error).message}. استُخدمت النسخة المخزنة الموثقة` });
     provider = deps.providers.fallback;
     fallbackUsed = true;
     const res = await provider.searchHadithSources(query);
