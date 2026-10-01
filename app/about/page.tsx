@@ -1,10 +1,12 @@
+import PageHead from '../../components/PageHead';
+
 export const metadata = { title: 'عن تثبّت' };
 
 export default function AboutPage() {
   return (
     <div className="page">
+      <PageHead title="عن تثبّت" />
       <div className="container prose">
-        <h1>عن تثبّت</h1>
         <p>
           تثبّت منصة ذكية تساعدك على التحقق من الأحاديث والعبارات الدينية المتداولة قبل نشرها. ترفع صورة البطاقة أو تلصق النص،
           فتقرأ المنصة العبارة وتفصلها عن الإضافات، وتبحث عنها في المصادر الحديثية الموثوقة، ثم تعرض لك النص الأقرب وحكم المحدّث

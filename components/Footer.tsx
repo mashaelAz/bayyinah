@@ -6,8 +6,8 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div>
-            <strong style={{ fontSize: 19, color: 'var(--pine)' }}>تثبّت</strong>
-            <p style={{ margin: '4px 0 0', color: 'var(--muted)' }}>تقنية تساعدك على الوصول إلى المصدر قبل النشر.</p>
+            <div className="footer-brand">تثبّت</div>
+            <p style={{ margin: '4px 0 0' }}>تقنية تساعدك على الوصول إلى المصدر قبل النشر.</p>
           </div>
           <nav className="footer-links" aria-label="روابط التذييل">
             <Link href="/sources">المصادر</Link>

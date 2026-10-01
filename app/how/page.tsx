@@ -1,3 +1,5 @@
+import PageHead from '../../components/PageHead';
+
 export const metadata = { title: 'كيف نتحقق؟ — تثبّت' };
 
 const STEPS = [
@@ -11,8 +13,8 @@ const STEPS = [
 export default function HowPage() {
   return (
     <div className="page">
+      <PageHead title="كيف نتحقق؟" />
       <div className="container prose">
-        <h1>كيف نتحقق؟</h1>
         <p>
           الذكاء الاصطناعي يحدد ويبحث ويطابق، والمصدر العلمي الموثوق هو الذي يزوّد النظام بالحكم. هذه هي القاعدة التي بُني عليها
           كل جزء في تثبّت.

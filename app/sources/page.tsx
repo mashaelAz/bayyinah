@@ -1,10 +1,12 @@
+import PageHead from '../../components/PageHead';
+
 export const metadata = { title: 'مصادرنا — تثبّت' };
 
 export default function SourcesPage() {
   return (
     <div className="page">
+      <PageHead title="مصادرنا" />
       <div className="container prose">
-        <h1>مصادرنا</h1>
         <p>نعتمد مبدأ المصدر قبل الإجابة. كل نتيجة حديثية في تثبّت مرتبطة بمصدرها، ولا تُعرض نتيجة بلا مصدر واضح.</p>
 
         <div className="source-entry">

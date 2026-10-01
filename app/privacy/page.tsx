@@ -1,10 +1,12 @@
+import PageHead from '../../components/PageHead';
+
 export const metadata = { title: 'سياسة الخصوصية — تثبّت' };
 
 export default function PrivacyPage() {
   return (
     <div className="page">
+      <PageHead title="سياسة الخصوصية" />
       <div className="container prose">
-        <h1>سياسة الخصوصية</h1>
         <p>صُمّمت نسخة الهاكثون لتجمع أقل قدر ممكن من البيانات.</p>
         <h2>الصور</h2>
         <p>

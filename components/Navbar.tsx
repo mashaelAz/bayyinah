@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Star } from './Ornament';
 
 const LINKS = [
   { href: '/', label: 'الرئيسية' },
@@ -19,7 +20,7 @@ export default function Navbar() {
       <div className="container nav-inner">
         <Link href="/" className="brand" aria-label="تثبّت — الصفحة الرئيسية">
           <span className="brand-mark" aria-hidden="true">
-            <span />
+            <Star color="#d9b76a" />
           </span>
           تثبّت
         </Link>

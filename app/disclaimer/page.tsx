@@ -1,10 +1,12 @@
+import PageHead from '../../components/PageHead';
+
 export const metadata = { title: 'إخلاء المسؤولية — تثبّت' };
 
 export default function DisclaimerPage() {
   return (
     <div className="page">
+      <PageHead title="إخلاء المسؤولية" />
       <div className="container prose">
-        <h1>إخلاء المسؤولية</h1>
         <p>
           تثبّت أداة تقنية مساعدة للوصول إلى المصادر الحديثية، وليست جهة إصدار فتوى أو حكم شرعي مستقل. الأحكام الحديثية المعروضة
           منسوبة إلى أصحابها ومصادرها، وقد تتطلب بعض الحالات الرجوع إلى أهل العلم والمتخصصين.

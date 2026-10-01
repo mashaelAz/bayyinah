@@ -1,5 +1,6 @@
 'use client';
 
+import PageHead from '../../components/PageHead';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { clearHistory, readHistory, type HistoryEntry } from '../../lib/history.ts';
@@ -26,8 +27,8 @@ export default function HistoryPage() {
 
   return (
     <div className="page">
+      <PageHead title="آخر عمليات التحقق" />
       <div className="container prose">
-        <h1>آخر عمليات التحقق</h1>
         <p>هذا السجل محفوظ في متصفحك فقط، والأرقام أدناه من استخدامك الفعلي على هذا الجهاز.</p>
 
         <div className="stats">
