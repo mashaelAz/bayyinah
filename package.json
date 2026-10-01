@@ -1,0 +1,31 @@
+{
+  "name": "tathabbat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "تثبّت — أداة ذكية للوصول إلى المصدر الحديثي قبل نشر النصوص الدينية المتداولة",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.6"
+  },
+  "dependencies": {
+    "next": "14.2.15",
+    "qrcode": "1.5.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tesseract.js": "5.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.16.11",
+    "@types/qrcode": "1.5.5",
+    "@types/react": "18.3.11",
+    "@types/react-dom": "18.3.1",
+    "typescript": "5.6.3"
+  }
+}
