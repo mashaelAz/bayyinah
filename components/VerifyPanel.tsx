@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ExtractionResult, VerificationResult } from '../lib/types.ts';
-import { ocrService } from '../lib/ocr/ocrService.ts';
+import { aiOcr, aiOcrAvailable, ocrService } from '../lib/ocr/ocrService.ts';
 import { saveToHistory } from '../lib/history.ts';
 import { verifyText } from '../lib/verify.ts';
 import { browserProviders } from '../lib/providers/index.ts';
@@ -60,6 +60,10 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [ocrProgress, setOcrProgress] = useState(0);
   const [ocrQuality, setOcrQuality] = useState<number | null>(null);
+  const [aiReady, setAiReady] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiUsed, setAiUsed] = useState(false);
+  const [aiError, setAiError] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [lastOpts, setLastOpts] = useState({ fromImage: false, extractedText: '' });
@@ -67,6 +71,28 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
   const editRef = useRef<HTMLTextAreaElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const autoRan = useRef(false);
+
+  // هل القراءة بالذكاء الاصطناعي متاحة في هذا النشر؟
+  useEffect(() => {
+    aiOcrAvailable().then(setAiReady);
+  }, []);
+
+  async function runAiOcr() {
+    if (!file) return;
+    setAiBusy(true);
+    setAiError(false);
+    try {
+      const out = await aiOcr(file);
+      setOcrQuality(out.quality);
+      setExtracted(out.text);
+      setText(out.text);
+      setAiUsed(true);
+      setError(null);
+    } catch {
+      setAiError(true);
+    }
+    setAiBusy(false);
+  }
 
   // أزرار الواجهة: #verify-image و #verify-text
   useEffect(() => {
@@ -144,6 +170,8 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
     setPhase('idle');
     setExtracted('');
     setOcrQuality(null);
+    setAiUsed(false);
+    setAiError(false);
     setFile(f);
     setPreview(URL.createObjectURL(f));
   }
@@ -193,6 +221,8 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
     setExtracted('');
     setText('');
     setOcrQuality(null);
+    setAiUsed(false);
+    setAiError(false);
     setFromImage(false);
   }
 
@@ -282,6 +312,20 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
               {ocrQuality !== null && ocrQuality < 0.7 && text.trim() ? (
                 <div className="alert alert-warn" role="status" style={{ marginTop: 0, marginBottom: 10 }}>
                   <strong>{t('ocr.warnTitle')}</strong> {t('ocr.warnBody')}
+                </div>
+              ) : null}
+              {aiReady && file && !aiUsed && (ocrQuality === null || ocrQuality < 0.85) ? (
+                <div className="ai-ocr">
+                  <button type="button" className="btn btn-primary btn-small" onClick={runAiOcr} disabled={aiBusy || busy}>
+                    {aiBusy ? t('ocr.aiBusy') : t('ocr.ai')}
+                  </button>
+                  <span className="fine">{t('ocr.aiNote')}</span>
+                </div>
+              ) : null}
+              {aiUsed ? <p className="fine">{t('ocr.aiDone')}</p> : null}
+              {aiError ? (
+                <div className="alert alert-warn" role="status" style={{ marginTop: 0, marginBottom: 10 }}>
+                  {t('ocr.aiFail')}
                 </div>
               ) : null}
               <textarea

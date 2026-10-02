@@ -379,3 +379,4 @@ details.raw summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 /* صفحة اختبار الأداء */
 .eval-table td, .eval-table th { font-size: 0.86rem; vertical-align: top; }
 @media (max-width: 760px) { .stats[style] { grid-template-columns: 1fr 1fr !important; } }
+.ai-ocr { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px; padding: 12px 14px; border: 1px dashed var(--lav); border-radius: 14px; background: var(--lav-soft); }
