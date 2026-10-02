@@ -154,3 +154,36 @@ test('تحليل استجابة JSONP بعد فكّ الدالة', () => {
   const inner = JSON.parse(body.slice(body.indexOf('(') + 1, body.lastIndexOf(')')));
   assert.equal(parseDorarResponse(inner, 'x', 'y').length, 3);
 });
+
+import { buildCorrection } from '../lib/correction.ts';
+
+test('التصحيح: لفظ محرّف ← نص المصدر حرفيًا مع حكمه، وحذف العبارات المضافة', async () => {
+  const text = 'قال رسول الله ﷺ: «إنما الأعمال بالنية، وإنما لكل إنسان ما نوى، فمن صدقت نيته بلغ مراده»\nانشر تؤجر';
+  const r = await verifyText({ text }, { providers: demoChain });
+  const c = buildCorrection(r);
+  assert.equal(c.kind, 'use_source_wording');
+  assert.ok(demo.some((d) => d.text.includes(c.text!) || d.text === c.text));
+  assert.ok(demo.some((d) => d.grade === c.grade));
+  assert.deepEqual(c.removedExtras, ['انشر تؤجر']);
+});
+
+test('التصحيح: لا تطابق ← لا نص ولا حكم، وتوجيه بعدم النسبة', async () => {
+  const r = await verifyText({ text: 'من جد وجد ومن زرع حصد' }, { providers: demoChain });
+  const c = buildCorrection(r);
+  assert.equal(c.kind, 'not_found');
+  assert.equal(c.text, null);
+  assert.equal(c.grade, null);
+});
+
+test('التصحيح: حكم بالتضعيف ← توجيه «ضعيف» مع الحكم منقولًا', () => {
+  const rec = demo.find((d) => d.id === 'dorar-bakheel-02')!;
+  const c = buildCorrection({
+    status: 'verified_match',
+    extraction: extractSearchText(rec.text),
+    best: { record: rec, level: 'normalized_exact', similarity: 1, isPartOfSource: false },
+    diff: null, otherRulings: [], rulingsDiffer: false, candidatesCount: 1,
+    provider: { id: 'demo', live: false, fallbackUsed: false }, evidence: [], searchUrl: '', checkedAt: '',
+  });
+  assert.equal(c.kind, 'weak');
+  assert.equal(c.grade, 'ضعيف');
+});

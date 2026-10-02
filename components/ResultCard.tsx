@@ -8,6 +8,7 @@ import type { MessageKey } from '../lib/i18n/ar.ts';
 import DiffView from './DiffView';
 import EvidenceTrail from './EvidenceTrail';
 import ShareBox from './ShareBox';
+import CorrectionCard from './CorrectionCard';
 
 interface Props {
   result: VerificationResult;
@@ -71,6 +72,8 @@ export default function ResultCard({ result, onRetry, onEdit }: Props) {
       </div>
 
       <p className="explain">{explanation(status)}</p>
+
+      <CorrectionCard result={result} />
 
       {typeKey ? <div className="alert alert-info">{t(typeKey)}</div> : null}
       {result.provider.fallbackUsed ? <div className="alert alert-info">{t('fallback.note')}</div> : null}

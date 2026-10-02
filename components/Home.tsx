@@ -28,61 +28,86 @@ function Kicker({ children }: { children: React.ReactNode }) {
 }
 
 export default function Home() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const k = (s: string) => s as MessageKey;
 
   return (
     <>
       <section className="hero">
-        <div className="container hero-grid">
-          <div>
-            <h1>{t('hero.title')}</h1>
-            <div className="verse">
-              <span className="ar" lang="ar">
-                ﴿{VERSE}﴾
-              </span>
-              <small>{t('hero.verseRef')}</small>
-            </div>
-            <p className="hero-lede">{t('hero.lede')}</p>
-            <div className="hero-actions">
-              <a href="#verify-image" className="btn btn-lav">
-                {t('hero.ctaImage')}
-              </a>
-              <a href="#verify-text" className="btn btn-light">
-                {t('hero.ctaText')}
-              </a>
-            </div>
-            <p className="hero-note">{t('hero.note')}</p>
+        <div className="container hero-inner">
+          <Star className="hero-star" color="#7a64c4" />
+          <h1 className="wordmark" lang="ar">
+            بيّنة
+          </h1>
+          {lang !== 'ar' ? <div className="wordmark-latin">{t('brand')}</div> : null}
+          <div className="hero-verse">
+            <span className="ar" lang="ar">
+              ﴿{VERSE}﴾
+            </span>
+            <small>{t('hero.verseRef')}</small>
           </div>
+          <p className="hero-slogan">{t('hero.title')}</p>
+          <p className="hero-lede">{t('hero.lede')}</p>
+          <div className="hero-actions">
+            <a href="#verify-image" className="btn btn-primary btn-big">
+              {t('hero.ctaImage')}
+            </a>
+            <a href="#verify-text" className="btn btn-ghost btn-big">
+              {t('hero.ctaText')}
+            </a>
+          </div>
+          <p className="hero-note">{t('hero.note')}</p>
+        </div>
+      </section>
 
-          <figure className="specimen" aria-label={t('specimen.aria')} style={{ margin: 0 }}>
-            <div className="arch">
-              <Star className="star" color="#9c86da" />
-              <div className="attr">قال رسول الله ﷺ:</div>
-              <p className="matn" lang="ar">
-                «<mark>إنما الأعمال بالنيات، وإنما لكل امرئ ما نوى</mark>»
-              </p>
-              <span className="extra">
-                <span className="ar">انشر تؤجر، ولا تجعلها تقف عندك</span>
-                <small>{t('specimen.excluded')}</small>
-              </span>
-            </div>
-            <div className="verdict">
-              <div className="row">
-                <span>{t('specimen.label')}</span>
-                <span>{t('specimen.match')}</span>
-              </div>
-              <div className="grade" lang="ar">
-                صحيح
-              </div>
-              <div className="cite" lang="ar">
-                الألباني، غاية المرام، 14
-              </div>
-              <div className="row" style={{ marginTop: 6 }}>
-                <span>{t('specimen.source')}</span>
+      <section className="section" aria-labelledby="showcase-title" style={{ paddingTop: 40 }}>
+        <div className="container">
+          <div className="section-head">
+            <h2 id="showcase-title" className="section-title">
+              {t('showcase.title')}
+            </h2>
+          </div>
+          <div className="showcase">
+            <div>
+              <span className="showcase-label before">{t('showcase.before')}</span>
+              <div className="card-before">
+                <div className="attr">قال رسول الله ﷺ:</div>
+                <p className="matn" lang="ar">
+                  «
+                  {DEMO_DIFF.circulating.map((tok, i) => (
+                    <span key={i}>
+                      <span className={tok.op === 'added' ? 'tok-added' : undefined}>{tok.text}</span>{' '}
+                    </span>
+                  ))}
+                  »
+                </p>
+                <span className="extra">انشر تؤجر، ولا تجعلها تقف عندك</span>
               </div>
             </div>
-          </figure>
+            <div className="showcase-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </div>
+            <div>
+              <span className="showcase-label after">{t('showcase.after')}</span>
+              <div className="arch">
+                <Star className="star" color="#9c86da" />
+                <div className="attr">قال رسول الله ﷺ:</div>
+                <p className="matn" lang="ar">
+                  «{DEMO_SOURCE.text}»
+                </p>
+                <div className="grade-pill" lang="ar">
+                  <b>{DEMO_SOURCE.grade}</b>
+                  <span>
+                    {DEMO_SOURCE.scholar}، {DEMO_SOURCE.source} {DEMO_SOURCE.reference}
+                  </span>
+                </div>
+                <span className="cite">{t('specimen.source')}</span>
+              </div>
+            </div>
+          </div>
+          <p className="fine showcase-note">{t('showcase.note')}</p>
         </div>
       </section>
 
@@ -126,7 +151,7 @@ export default function Home() {
             <ul className="features">
               {[1, 2, 3, 4, 5].map((n) => (
                 <li key={n}>
-                  <StarSolid color={n % 2 ? '#006c35' : '#9c86da'} />
+                  <StarSolid color={n === 5 ? '#006c35' : '#7a64c4'} />
                   <div>
                     <h3>{t(k(`solution.${n}.t`))}</h3>
                     <p>{t(k(`solution.${n}.b`))}</p>
