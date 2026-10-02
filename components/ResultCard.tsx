@@ -10,6 +10,7 @@ import EvidenceTrail from './EvidenceTrail';
 import ShareBox from './ShareBox';
 import CorrectionCard from './CorrectionCard';
 import DorarBridge from './DorarBridge';
+import AskBayyinah from './AskBayyinah';
 
 interface Props {
   result: VerificationResult;
@@ -92,6 +93,8 @@ export default function ResultCard({ result, onRetry, onEdit, onManual }: Props)
       ) : null}
 
       <CorrectionCard result={result} />
+
+      <AskBayyinah result={result} />
 
       {typeKey ? <div className="alert alert-info">{t(typeKey)}</div> : null}
       {result.provider.fallbackUsed ? <div className="alert alert-info">{t('fallback.note')}</div> : null}

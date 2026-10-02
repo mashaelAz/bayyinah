@@ -404,3 +404,14 @@ details.raw summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 .bridge h3 { color: var(--plum); }
 .bridge-steps { margin: 8px 0 14px; padding-inline-start: 22px; display: grid; gap: 8px; }
 .bridge-steps .btn { margin-inline-start: 6px; }
+/* اسأل بيّنة */
+.ask { border: 1px solid var(--lav); background: linear-gradient(180deg, #fff, var(--lav-soft)); }
+.ask h3 { color: var(--plum); }
+.ask-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 12px; }
+.chip { border: 1px solid var(--gold-2); background: var(--gold-soft); color: var(--plum); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+.chip:hover { background: #f4e6c4; }
+.ask-pair { margin: 10px 0; }
+.ask-q { margin: 0; font-weight: 600; color: var(--lav-700); }
+.ask-a { margin: 6px 0 0; padding: 12px 14px; background: #fff; border: 1px solid var(--lav-line); border-radius: 14px; white-space: pre-line; }
+.ask-form { display: flex; gap: 8px; margin-top: 10px; }
+.ask-form .input { flex: 1; min-height: 0; }
