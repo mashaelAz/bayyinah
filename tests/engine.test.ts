@@ -223,3 +223,15 @@ test('قول عالم مشكول: يُحذف المرجع ويبقى التشك�
   assert.equal(c.kind, 'saying');
   assert.equal(c.citedRef, 'مجموع الفتاوى 14/349');
 });
+
+test('جسر الدرر: يحلّل ما لصقه المستخدم من صفحة الدرر ويتحقق منه كمصدر حي', async () => {
+  const { parsePastedDorar, ManualDorarProvider } = await import('../lib/providers/manual.ts');
+  // ما ينسخه المستخدم من المتصفح: سطر «Pretty-print» ثم JSON كما يعرضه
+  const pasted = 'Pretty-print ☐\n' + JSON.stringify(fixture);
+  const records = parsePastedDorar(pasted, 'إنما الأعمال بالنيات');
+  assert.ok(records.length > 0);
+  const r = await verifyText({ text: 'إنما الأعمال بالنيات' }, { providers: [new ManualDorarProvider(records, 'إنما الأعمال بالنيات')] });
+  assert.equal(r.provider.live, true);
+  assert.equal(r.status, 'verified_match');
+  assert.throws(() => parsePastedDorar('نص عشوائي', 'x'));
+});

@@ -6,6 +6,8 @@ import { aiOcr, aiOcrAvailable, ocrService } from '../lib/ocr/ocrService.ts';
 import { saveToHistory } from '../lib/history.ts';
 import { verifyText } from '../lib/verify.ts';
 import { browserProviders } from '../lib/providers/index.ts';
+import { ManualDorarProvider } from '../lib/providers/manual.ts';
+import type { SourceRecord } from '../lib/types.ts';
 import { demoRecords } from '../lib/providers/demoData.ts';
 import { useI18n } from '../lib/i18n/index.tsx';
 import { IconSpark } from './Icons';
@@ -423,6 +425,15 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
           <ResultCard
             result={result}
             onRetry={() => runVerify(text, lastOpts)}
+            onManual={async (records: SourceRecord[], query: string) => {
+              const r = await verifyText(
+                { text: text.trim().slice(0, 2000), extractedText: lastOpts.extractedText, fromImage: lastOpts.fromImage },
+                { providers: [new ManualDorarProvider(records, query)] },
+              );
+              setResult(r);
+              saveToHistory(r);
+              setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+            }}
             onEdit={() => {
               setResult(null);
               setPhase(lastOpts.fromImage ? 'review' : 'idle');

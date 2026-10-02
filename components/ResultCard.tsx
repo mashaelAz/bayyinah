@@ -1,6 +1,6 @@
 'use client';
 
-import type { VerificationResult, ResultStatus } from '../lib/types.ts';
+import type { SourceRecord, VerificationResult, ResultStatus } from '../lib/types.ts';
 import { gradeTone } from '../lib/grades.ts';
 import { matchableSourceText } from '../lib/display.ts';
 import { gradeGloss, useI18n } from '../lib/i18n/index.tsx';
@@ -9,11 +9,14 @@ import DiffView from './DiffView';
 import EvidenceTrail from './EvidenceTrail';
 import ShareBox from './ShareBox';
 import CorrectionCard from './CorrectionCard';
+import DorarBridge from './DorarBridge';
 
 interface Props {
   result: VerificationResult;
   onRetry?: () => void;
   onEdit?: () => void;
+  /** تحقق من سجلات نسخها المستخدم من الدرر (جسر الدرر) */
+  onManual?: (records: SourceRecord[], query: string) => void;
 }
 
 const TYPE_NOTE: Partial<Record<VerificationResult['extraction']['contentType'], MessageKey>> = {
@@ -24,7 +27,7 @@ const TYPE_NOTE: Partial<Record<VerificationResult['extraction']['contentType'],
   saying: 'type.saying',
 };
 
-export default function ResultCard({ result, onRetry, onEdit }: Props) {
+export default function ResultCard({ result, onRetry, onEdit, onManual }: Props) {
   const { t, lang } = useI18n();
   const { status, best, extraction, diff } = result;
   const grade = best?.record.grade?.trim() || null;
@@ -83,6 +86,10 @@ export default function ResultCard({ result, onRetry, onEdit }: Props) {
       </div>
 
       <p className="explain">{explanation(status)}</p>
+
+      {onManual && (status === 'source_unavailable' || (result.provider.fallbackUsed && !best)) ? (
+        <DorarBridge text={extraction.searchText} onRecords={onManual} />
+      ) : null}
 
       <CorrectionCard result={result} />
 

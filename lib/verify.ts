@@ -35,7 +35,7 @@ export interface VerifyDeps {
 }
 
 /** نص صالح لمحرك البحث في المصدر: بلا تشكيل ولا علامات، مع الإبقاء على صور الحروف */
-function toSourceQuery(text: string): string {
+export function toSourceQuery(text: string): string {
   return stripDiacritics(text)
     .replace(/ﷺ/g, ' ')
     .replace(/[^ء-ي\s]/g, ' ')

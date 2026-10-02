@@ -399,3 +399,8 @@ details.raw summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 .std h3 svg { color: var(--gold-2); }
 .footer-brand { color: var(--gold-2); }
 .showcase-arrow { box-shadow: 0 0 0 3px var(--gold-soft), 0 0 0 4px var(--gold-2), 0 10px 24px -12px rgba(46,36,82,.7); }
+/* جسر الدرر */
+.bridge { border: 2px solid var(--gold-2); background: var(--gold-soft); }
+.bridge h3 { color: var(--plum); }
+.bridge-steps { margin: 8px 0 14px; padding-inline-start: 22px; display: grid; gap: 8px; }
+.bridge-steps .btn { margin-inline-start: 6px; }
