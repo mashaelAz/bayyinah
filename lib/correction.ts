@@ -33,6 +33,9 @@ export interface Correction {
   rulings: CardRuling[];
   /** هل اختلف المحدثون في الحكم؟ */
   differ: boolean;
+  /** لقول العالم: القائل والمرجع المكتوب على البطاقة */
+  speaker: string | null;
+  citedRef: string | null;
 }
 
 export interface CardRuling {
@@ -55,10 +58,21 @@ export function buildCorrection(r: VerificationResult): Correction {
     removedExtras: r.extraction.extraPhrases,
     rulings: [],
     differ: false,
+    speaker: null,
+    citedRef: null,
   };
 
   if (r.status === 'source_unavailable') return base;
-  if (r.status === 'not_found' && r.extraction.contentType === 'saying') return { ...base, kind: 'saying' };
+  if (r.status === 'not_found' && r.extraction.contentType === 'saying') {
+    // النص بلفظ المستخدم نفسه (لا مصدر حديثي له)، منسوبًا إلى قائله
+    return {
+      ...base,
+      kind: 'saying',
+      text: r.extraction.searchText,
+      speaker: r.extraction.speaker ?? null,
+      citedRef: r.extraction.citedRef ?? null,
+    };
+  }
   if (r.status === 'not_found' || !best) return { ...base, kind: 'not_found' };
 
   const grade = best.record.grade?.trim() || null;
@@ -104,6 +118,13 @@ export function correctionShareText(
   labels: { grade: string; source: string; footer: string; warning: string },
 ): string {
   const lines: string[] = [];
+  if (c.kind === 'saying') {
+    lines.push(labels.warning);
+    if (c.text) lines.push(`${c.speaker ? `قال ${c.speaker}: ` : ''}«${c.text}»`);
+    if (c.citedRef) lines.push(`${labels.source}: ${c.citedRef}`);
+    lines.push(labels.footer);
+    return lines.join('\n');
+  }
   if (c.kind === 'not_found') {
     lines.push(labels.warning);
   } else if (c.text) {

@@ -342,6 +342,8 @@ export const tr: Messages = {
   'card.ok': "Kaynağın lafzıyla",
   'card.weak': "Dikkat: muhaddis zayıf hükmü vermiştir",
   'card.review': "Dikkat: daha fazla inceleme gerekir",
+  'card.saying': 'Dikkat: bir âlimin sözü, hadis değil',
+  'card.refNote': 'Lafzını bu kaynakta doğrulayın',
   'card.differ': 'Dikkat: muhaddisler hükmünde ihtilaf etmiştir',
   'card.notFound': "Dikkat: bu metin onaylı hadis kaynaklarında bulunamadı",
   'card.footer': "Paylaşmadan önce doğrula — Bayyinah",

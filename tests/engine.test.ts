@@ -211,3 +211,15 @@ test('البحث على مراحل: فشل مرحلة لا يُسقط البحث
   });
   assert.deepEqual(res.records, []);
 });
+
+test('قول عالم مشكول: يُحذف المرجع ويبقى التشكيل، ويُنتج تصحيحًا ببطاقة', async () => {
+  const { buildCorrection } = await import('../lib/correction.ts');
+  const text = 'قال الشيخ ربيع حَفِظَهُ الله:\nأَهْلُ البَاطِلِ لا بُدَّ أن يَتَأثَّر\nمجموع الفتاوى 14/349';
+  const r = await verifyText({ text }, { providers: [] });
+  assert.equal(r.extraction.speaker, 'الشيخ ربيع');
+  assert.ok(r.extraction.searchText.includes('البَاطِلِ'));
+  assert.ok(!r.extraction.searchText.includes('349'));
+  const c = buildCorrection(r);
+  assert.equal(c.kind, 'saying');
+  assert.equal(c.citedRef, 'مجموع الفتاوى 14/349');
+});

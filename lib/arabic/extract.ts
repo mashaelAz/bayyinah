@@ -1,4 +1,4 @@
-import { normalizeArabic, tokenize } from './normalize.ts';
+import { normalizeArabic, stripDiacritics, tokenize } from './normalize.ts';
 import type { ContentType, ExtractionResult } from '../types.ts';
 
 /**
@@ -129,19 +129,29 @@ export function extractSearchText(originalText: string, extractedText = ''): Ext
   // لمن نُسب القول: السطر الأول حتى النقطتين، مثل «قال الشيخ ربيع حفظه الله:»
   let speaker: string | null = null;
   if (contentType === 'saying') {
-    const first = original.split('\n')[0].split(/[:：]/)[0];
+    const first = stripDiacritics(original.split('\n')[0].split(/[:：]/)[0]).replace(/ـ/g, '');
     speaker = first
       .replace(/^\s*(و?قال|يقول)\s*/, '')
-      .replace(/\s*(حفظه\s*الله|رحمه\s*الله|رحمة\s*الله\s*عليه|رضي\s*الله\s*عنه)\s*$/, '')
+      .replace(/\s*(حفظه\s*الله(\s*تعالى)?|رحمه\s*الله(\s*تعالى)?|رحمة\s*الله\s*عليه|رضي\s*الله\s*عنه)\s*$/, '')
       .trim()
       .slice(0, 60) || null;
     // نزيل سطر النسبة من نص البحث
     const lines = searchText.split(/[:：]/);
     if (lines.length > 1 && SAYING_RE.test(normalizeArabic(lines[0]))) searchText = lines.slice(1).join(':').trim();
   }
-  const refMatch = original.match(CITED_REF_RE);
+  const refMatch = stripDiacritics(original).replace(/ـ/g, '').match(CITED_REF_RE);
   const citedRef = refMatch ? refMatch[0].replace(/[\s،,.]+$/, '').trim() : null;
-  if (citedRef && contentType === 'saying') searchText = searchText.replace(citedRef, '').replace(/[\s.،]+$/, '').trim();
+  if (citedRef && contentType === 'saying') {
+    // نحذف سطر المرجع من نص القول
+    // نطابق المرجع مع السماح بالتشكيل والتطويل بين الحروف، فيبقى تشكيل نص القول كما هو
+    const loose = new RegExp(
+      [...citedRef].map((ch) => ch.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('[\u064B-\u0652\u0670ـ]*'),
+    );
+    searchText = searchText
+      .replace(loose, '')
+      .replace(/[\s.،]+$/, '')
+      .trim();
+  }
 
   return {
     originalText: original,

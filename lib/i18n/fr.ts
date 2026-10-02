@@ -342,6 +342,8 @@ export const fr: Messages = {
   'card.ok': "Selon le texte de la source",
   'card.weak': "Attention : jugé faible par le savant",
   'card.review': "Attention : à vérifier davantage",
+  'card.saying': 'Attention : parole d’un savant, pas un hadith',
+  'card.refNote': 'Vérifiez le texte dans cette référence',
   'card.differ': 'Attention : les savants divergent sur son authenticité',
   'card.notFound': "Attention : ce texte est introuvable dans les sources approuvées du hadith",
   'card.footer': "Vérifiez avant de partager — Bayyinah",
