@@ -128,6 +128,18 @@ export async function verifyText(input: VerifyInput, deps: VerifyDeps): Promise<
     };
   }
 
+  // قول منسوب إلى عالم: ليس حديثًا، والموسوعة الحديثية لا تحكم على أقوال العلماء
+  if (extraction.contentType === 'saying') {
+    evidence.push({ code: 'not_hadith', params: { speaker: extraction.speaker ?? '', ref: extraction.citedRef ?? '' } });
+    return {
+      ...empty,
+      status: 'not_found',
+      provider: { id: firstId, live: true, fallbackUsed: false },
+      evidence,
+      searchUrl: dorarSearchUrl(''),
+    };
+  }
+
   const query = toSourceQuery(extraction.searchText);
   let records: SourceRecord[] | null = null;
   let searchUrl = dorarSearchUrl(query);

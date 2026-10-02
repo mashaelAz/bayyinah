@@ -10,7 +10,7 @@ import type { SourceRecord } from '../types.ts';
  * فلا يتأثر بحجب الطلبات الآلية من الخوادم، ويعمل على أي استضافة.
  */
 
-const TIMEOUT_MS = 10000;
+const TIMEOUT_MS = 15000;
 let counter = 0;
 
 function jsonp(url: string): Promise<unknown> {
@@ -69,7 +69,15 @@ export class BrowserDorarProvider implements HadithProvider {
     const key = query.trim();
     const hit = this.cache.get(key);
     if (hit) return hit;
-    const data = await jsonp(`${this.baseUrl}?skey=${encodeURIComponent(key)}`);
+    const url = `${this.baseUrl}?skey=${encodeURIComponent(key)}`;
+    let data: unknown;
+    try {
+      data = await jsonp(url);
+    } catch {
+      // إعادة محاولة واحدة: الشبكة أو الموسوعة قد تتأخر لحظيًا
+      await new Promise((r) => setTimeout(r, 800));
+      data = await jsonp(url);
+    }
     let records: SourceRecord[];
     try {
       records = parseDorarResponse(data, key, new Date().toISOString());

@@ -25,6 +25,14 @@ const DAWAH_PATTERNS: RegExp[] = [
 const ATTRIBUTION_RE =
   /^\s*((?:عن\s+\S+(?:\s+\S+){0,3}\s+(?:رضي\s+الله\s+عنه(?:ا|م|ما)?\s+)?)?(?:قال|يقول|أن|ان)\s+(?:رسول\s+الله|النبي|النبيّ|نبي\s+الله)\s*(?:ﷺ|صلى\s+الله\s+عليه\s+وسلم|صلّى\s+الله\s+عليه\s+وسلّم|عليه\s+الصلاة\s+والسلام)?\s*(?:قال)?\s*[:：،,]?\s*)/u;
 
+/** قول منسوب إلى عالم (يقبل التصاق «قال» بما بعدها من أخطاء القراءة الضوئية) */
+const SAYING_RE =
+  /^(قال|يقول|وقال)\s*(الامام|الشيخ|العلامه|العلامة|المحدث|الحافظ|شيخ الاسلام|ابن القيم|ابن تيميه|ابن باز|ابن عثيمين|ابن الجوزي|ابن رجب|ابن كثير|الحسن البصري|الشافعي|احمد بن حنبل|مالك|سفيان|الفضيل|ابن المبارك)/;
+
+/** إشارة مرجع مكتوبة على البطاقة: اسم كتاب يتبعه رقم */
+const CITED_REF_RE =
+  /(مجموع الفتاو[ىي]|مدارج السالكين|زاد المعاد|الفوائد|إعلام الموقعين|اعلام الموقعين|صحيح البخاري|صحيح مسلم|صحيح الترمذي|صحيح الجامع|سنن [^\d\n]{2,15}|مسند [^\d\n]{2,15}|السلسلة [^\d\n]{2,15}|الفتاو[ىي][^\d\n]{0,15})\s*[:،,(\[]?\s*[\d٠-٩][\d٠-٩\/,.،\s]*/;
+
 /** بدايات العبارات الدعوية حين تلتصق بآخر المتن */
 const DAWAH_START =
   /^(و)?(انشر|انشرها|انشروها|شارك|شاركها|ارسلها|ارسلوها|ابعثها|لا تجعلها|لا توقفها|صدقه جاريه|اللهم اجعلها|تابعونا|صحيح |رواه |اخرجه |متفق عليه)/;
@@ -60,9 +68,7 @@ export function classifyText(text: string, attribution: string | null): ContentT
     return 'athar';
   }
   if (/^(اللهم|ربنا|رب )/.test(n)) return 'dua';
-  if (/^(قال|يقول) (الامام|الشيخ|ابن القيم|ابن تيميه|الحسن البصري|الشافعي|احمد)/.test(n)) {
-    return 'saying';
-  }
+  if (SAYING_RE.test(n)) return 'saying';
   return 'unknown';
 }
 
@@ -120,6 +126,23 @@ export function extractSearchText(originalText: string, extractedText = ''): Ext
       ? 'dawah_phrase'
       : classifyText(original, attribution);
 
+  // لمن نُسب القول: السطر الأول حتى النقطتين، مثل «قال الشيخ ربيع حفظه الله:»
+  let speaker: string | null = null;
+  if (contentType === 'saying') {
+    const first = original.split('\n')[0].split(/[:：]/)[0];
+    speaker = first
+      .replace(/^\s*(و?قال|يقول)\s*/, '')
+      .replace(/\s*(حفظه\s*الله|رحمه\s*الله|رحمة\s*الله\s*عليه|رضي\s*الله\s*عنه)\s*$/, '')
+      .trim()
+      .slice(0, 60) || null;
+    // نزيل سطر النسبة من نص البحث
+    const lines = searchText.split(/[:：]/);
+    if (lines.length > 1 && SAYING_RE.test(normalizeArabic(lines[0]))) searchText = lines.slice(1).join(':').trim();
+  }
+  const refMatch = original.match(CITED_REF_RE);
+  const citedRef = refMatch ? refMatch[0].replace(/[\s،,.]+$/, '').trim() : null;
+  if (citedRef && contentType === 'saying') searchText = searchText.replace(citedRef, '').replace(/[\s.،]+$/, '').trim();
+
   return {
     originalText: original,
     extractedText,
@@ -128,6 +151,8 @@ export function extractSearchText(originalText: string, extractedText = ''): Ext
     extraPhrases,
     attribution,
     contentType,
+    speaker,
+    citedRef,
     aiAssisted: false,
   };
 }

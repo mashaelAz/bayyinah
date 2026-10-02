@@ -187,3 +187,27 @@ test('التصحيح: حكم بالتضعيف ← توجيه «ضعيف» مع �
   assert.equal(c.kind, 'weak');
   assert.equal(c.grade, 'ضعيف');
 });
+
+test('قول منسوب إلى عالم: لا يُبحث عنه حديثًا، ويُستخرج القائل والمرجع', async () => {
+  const text = 'قالالشيخ ربيع حفظه الله:\nأهل الباطل لا بد أن يتأثر رغم أنفه مهما ادعى لنفسه لا بد أن يتأثر.\nمجموع الفتاوى 14/349';
+  let called = false;
+  const spy: HadithProvider = { id: 'spy', live: true, async searchHadithSources() { called = true; return { records: [], searchUrl: '' }; } };
+  const r = await verifyText({ text }, { providers: [spy] });
+  assert.equal(r.extraction.contentType, 'saying');
+  assert.equal(called, false);
+  assert.equal(r.status, 'not_found');
+  assert.match(r.extraction.speaker ?? '', /ربيع/);
+  assert.match(r.extraction.citedRef ?? '', /مجموع الفتاوى 14\/349/);
+  assert.ok(r.evidence.some((e) => e.code === 'not_hadith'));
+});
+
+test('البحث على مراحل: فشل مرحلة لا يُسقط البحث إذا نجحت أخرى', async () => {
+  const { searchInStages } = await import('../lib/providers/types.ts');
+  let n = 0;
+  const res = await searchInStages('ا ب ت ث ج ح خ د ذ ر ز س ش ص', async () => {
+    n++;
+    if (n === 1) throw new Error('timeout');
+    return [];
+  });
+  assert.deepEqual(res.records, []);
+});

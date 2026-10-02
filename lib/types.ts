@@ -47,6 +47,10 @@ export interface ExtractionResult {
   /** صيغة النسبة إن وُجدت، مثل: قال رسول الله ﷺ */
   attribution: string | null;
   contentType: ContentType;
+  /** لمن نُسب القول إن كان قول عالم، مثل: «الشيخ ربيع» */
+  speaker?: string | null;
+  /** المرجع المكتوب على البطاقة، مثل: «مجموع الفتاوى 14/349» — يُعرض ولا يُعتمد */
+  citedRef?: string | null;
   /** هل استُخدم النموذج اللغوي في الاستخراج */
   aiAssisted: boolean;
 }
@@ -108,7 +112,8 @@ export type EvidenceCode =
   | 'grade_quoted'
   | 'no_grade'
   | 'unavailable'
-  | 'nothing_to_search';
+  | 'nothing_to_search'
+  | 'not_hadith';
 
 export interface EvidenceStep {
   code: EvidenceCode;

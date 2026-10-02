@@ -242,6 +242,17 @@ export default function CorrectionCard({ result }: { result: VerificationResult 
   const [busy, setBusy] = useState(false);
   const c = buildCorrection(result);
   if (c.kind === 'none') return null;
+  if (c.kind === 'saying') {
+    return (
+      <section className="fix fix-warn" aria-labelledby="fix-title">
+        <h3 id="fix-title">{t('fix.title')}</h3>
+        <p className="fix-intro" style={{ marginBottom: 0 }}>
+          {t('fix.saying', { who: result.extraction.speaker || t('exp.sayingSomeone') })}
+          {result.extraction.citedRef ? ` ${t('exp.sayingRef', { ref: result.extraction.citedRef })}` : ''}
+        </p>
+      </section>
+    );
+  }
 
   const intro =
     c.kind === 'weak'

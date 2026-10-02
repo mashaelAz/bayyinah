@@ -32,7 +32,8 @@ export default function ResultCard({ result, onRetry, onEdit }: Props) {
   const gloss = gradeGloss(lang, grade);
   const pct = best ? Math.round(best.similarity * 100) : 0;
   const showOriginal = extraction.searchText.trim() !== extraction.originalText.trim();
-  const typeKey = TYPE_NOTE[extraction.contentType];
+  const saying = extraction.contentType === 'saying' && status === 'not_found';
+  const typeKey = saying ? undefined : TYPE_NOTE[extraction.contentType];
   const cached = !result.provider.live;
 
   function explanation(s: ResultStatus): string {
@@ -50,20 +51,23 @@ export default function ResultCard({ result, onRetry, onEdit }: Props) {
       case 'needs_review':
         return result.rulingsDiffer ? t('exp.reviewConflict') : t('exp.reviewPartial');
       case 'not_found':
+        if (saying) {
+          return t('exp.saying', { who: extraction.speaker || t('exp.sayingSomeone') });
+        }
         return t('exp.notFound');
       case 'source_unavailable':
         return t('exp.unavailable');
     }
   }
 
-  const needsHelp = status === 'needs_review' || status === 'not_found' || status === 'source_unavailable';
+  const needsHelp = !saying && (status === 'needs_review' || status === 'not_found' || status === 'source_unavailable');
 
   return (
     <article className="result" aria-live="polite" aria-labelledby="result-status">
       <div className="result-head">
         <div className="status-row">
           <span id="result-status" className={`status status-${status}`}>
-            {t(`status.${status}`)}
+            {saying ? t('status.saying') : t(`status.${status}`)}
           </span>
           {grade ? (
             <span className={`grade-chip chip-${tone}`} lang="ar">

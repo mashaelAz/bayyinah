@@ -46,10 +46,19 @@ export async function searchInStages(
     attempts.push(words.slice(Math.max(0, mid - 3), mid + 3).join(' '));
   }
   const seen = new Map<string, SourceRecord>();
+  let ok = false;
+  let lastErr: unknown = null;
   for (const q of attempts) {
-    const records = await fetchOnce(q);
-    for (const r of records) seen.set(r.id, r);
-    if (seen.size >= 5) break;
+    try {
+      const records = await fetchOnce(q);
+      ok = true;
+      for (const r of records) seen.set(r.id, r);
+      if (seen.size >= 5) break;
+    } catch (err) {
+      // محاولة واحدة فاشلة لا تُسقط البحث إذا نجحت غيرها
+      lastErr = err;
+    }
   }
+  if (!ok) throw lastErr;
   return { records: [...seen.values()], searchUrl: dorarSearchUrl(attempts[0]) };
 }

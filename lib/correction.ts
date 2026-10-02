@@ -15,6 +15,7 @@ export type CorrectionKind =
   | 'state_ruling' // حكم غير صريح التقوية أو التضعيف: يُذكر الحكم كما ورد
   | 'review' // تعارض أو مطابقة جزئية: لا يُنشر قبل سؤال المختص
   | 'not_found' // لم يُعثر عليه: لا يُنسب للنبي ﷺ
+  | 'saying' // قول عالم: يُنسب لقائله ويُراجع مرجعه
   | 'none'; // تعذر المصدر
 
 export interface Correction {
@@ -57,6 +58,7 @@ export function buildCorrection(r: VerificationResult): Correction {
   };
 
   if (r.status === 'source_unavailable') return base;
+  if (r.status === 'not_found' && r.extraction.contentType === 'saying') return { ...base, kind: 'saying' };
   if (r.status === 'not_found' || !best) return { ...base, kind: 'not_found' };
 
   const grade = best.record.grade?.trim() || null;

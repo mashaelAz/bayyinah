@@ -314,7 +314,7 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
                   <strong>{t('ocr.warnTitle')}</strong> {t('ocr.warnBody')}
                 </div>
               ) : null}
-              {aiReady && file && !aiUsed && (ocrQuality === null || ocrQuality < 0.85) ? (
+              {aiReady && file && !aiUsed ? (
                 <div className="ai-ocr">
                   <button type="button" className="btn btn-primary btn-small" onClick={runAiOcr} disabled={aiBusy || busy}>
                     {aiBusy ? t('ocr.aiBusy') : t('ocr.ai')}

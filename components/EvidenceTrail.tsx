@@ -58,6 +58,8 @@ function describe(t: T, s: EvidenceStep): { label: string; detail?: string } {
       return { label: t('ev.unavailable'), detail: p.reason ? t('ev.reason', { reason: String(p.reason) }) : undefined };
     case 'nothing_to_search':
       return { label: t('ev.nothing_to_search') };
+    case 'not_hadith':
+      return { label: t('ev.not_hadith') };
   }
 }
 
