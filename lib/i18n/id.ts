@@ -336,6 +336,7 @@ export const id: Messages = {
   'card.ok': "Dengan lafaz sumber",
   'card.weak': "Perhatian: dinilai lemah oleh ahli hadis",
   'card.review': "Perhatian: perlu pemeriksaan lanjut",
+  'card.differ': 'Perhatian: para ahli hadis berbeda dalam menilainya',
   'card.notFound': "Perhatian: teks ini tidak ditemukan di sumber hadis yang disetujui",
   'card.footer': "Periksa sebelum membagikan — Bayyinah",
   'showcase.title': "Dari kartu yang beredar… ke kartu yang dikoreksi",

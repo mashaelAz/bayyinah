@@ -28,6 +28,17 @@ export interface Correction {
   sourceUrl: string | null;
   /** العبارات المضافة التي حُذفت من النسخة المصححة */
   removedExtras: string[];
+  /** أحكام المحدثين المعروضة (أكثر من حكم إذا اختلفوا) */
+  rulings: CardRuling[];
+  /** هل اختلف المحدثون في الحكم؟ */
+  differ: boolean;
+}
+
+export interface CardRuling {
+  grade: string;
+  scholar: string;
+  source: string;
+  reference: string;
 }
 
 export function buildCorrection(r: VerificationResult): Correction {
@@ -41,6 +52,8 @@ export function buildCorrection(r: VerificationResult): Correction {
     reference: null,
     sourceUrl: null,
     removedExtras: r.extraction.extraPhrases,
+    rulings: [],
+    differ: false,
   };
 
   if (r.status === 'source_unavailable') return base;
@@ -55,9 +68,27 @@ export function buildCorrection(r: VerificationResult): Correction {
     source: best.record.source || null,
     reference: best.record.reference || null,
     sourceUrl: best.record.source_url,
+    rulings: grade
+      ? [{ grade, scholar: best.record.scholar || '', source: best.record.source || '', reference: best.record.reference || '' }]
+      : [],
   };
 
-  if (r.status === 'needs_review') return { ...withSource, kind: 'review' };
+  if (r.status === 'needs_review') {
+    if (r.rulingsDiffer && r.otherRulings.length > 1) {
+      // نعرض الأحكام المختلفة كلها منسوبة لأصحابها، دون ترجيح
+      const seen = new Set<string>();
+      const rulings: CardRuling[] = [];
+      for (const x of r.otherRulings) {
+        const key = `${x.grade}|${x.scholar}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        rulings.push({ grade: x.grade, scholar: x.scholar, source: x.source, reference: x.reference });
+        if (rulings.length >= 3) break;
+      }
+      return { ...withSource, kind: 'review', rulings, differ: true };
+    }
+    return { ...withSource, kind: 'review' };
+  }
 
   const tone = gradeTone(grade);
   if (tone === 'weak') return { ...withSource, kind: 'weak' };
@@ -76,8 +107,9 @@ export function correctionShareText(
   } else if (c.text) {
     if (c.kind === 'weak' || c.kind === 'review') lines.push(labels.warning);
     lines.push(`«${c.text}»`);
-    if (c.grade) lines.push(`${labels.grade}: ${c.grade}${c.scholar ? ` (${c.scholar})` : ''}`);
-    if (c.source) lines.push(`${labels.source}: ${c.source}${c.reference ? ` ${c.reference}` : ''}`);
+    for (const x of c.rulings) {
+      lines.push(`${labels.grade}: «${x.grade}» — ${[x.scholar, x.source, x.reference].filter(Boolean).join('، ')}`);
+    }
   }
   lines.push(labels.footer);
   return lines.join('\n');

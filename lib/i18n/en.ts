@@ -337,6 +337,7 @@ export const en: Messages = {
   'card.ok': "In the source wording",
   'card.weak': "Note: graded weak by the scholar",
   'card.review': "Note: needs further checking",
+  'card.differ': 'Note: scholars differed in grading it',
   'card.notFound': "Note: this text was not found in the approved Hadith sources",
   'card.footer': "Verify before you share — Bayyinah",
   'showcase.title': "From a circulating card… to a corrected one",

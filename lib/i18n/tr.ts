@@ -336,6 +336,7 @@ export const tr: Messages = {
   'card.ok': "Kaynağın lafzıyla",
   'card.weak': "Dikkat: muhaddis zayıf hükmü vermiştir",
   'card.review': "Dikkat: daha fazla inceleme gerekir",
+  'card.differ': 'Dikkat: muhaddisler hükmünde ihtilaf etmiştir',
   'card.notFound': "Dikkat: bu metin onaylı hadis kaynaklarında bulunamadı",
   'card.footer': "Paylaşmadan önce doğrula — Bayyinah",
   'showcase.title': "Dolaşımdaki karttan… düzeltilmiş karta",
