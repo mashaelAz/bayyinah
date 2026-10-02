@@ -22,7 +22,7 @@ export default function Navbar() {
       <div className="container nav-inner">
         <Link href="/" className="brand" aria-label={t('brand')}>
           <span className="brand-mark" aria-hidden="true">
-            <Star color="#c9b8f2" />
+            <Star color="#d4af5a" />
           </span>
           {t('brand')}
         </Link>

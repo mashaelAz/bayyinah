@@ -35,7 +35,7 @@ export default function Home() {
     <>
       <section className="hero">
         <div className="container hero-inner">
-          <Star className="hero-star" color="#7a64c4" />
+          <Star className="hero-star" color="#b8892b" />
           <h1 className="wordmark" lang="ar">
             بيّنة
           </h1>
@@ -93,7 +93,7 @@ export default function Home() {
             <div>
               <span className="showcase-label after">{t('showcase.after')}</span>
               <div className="arch">
-                <Star className="star" color="#9c86da" />
+                <Star className="star" color="#c9a24a" />
                 <div className="attr">قال رسول الله ﷺ:</div>
                 <p className="matn" lang="ar">
                   «{DEMO_SOURCE.text}»
