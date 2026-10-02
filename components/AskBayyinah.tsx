@@ -8,7 +8,7 @@ import type { VerificationResult } from '../lib/types.ts';
 function buildContext(r: VerificationResult): string {
   const lines: string[] = [];
   lines.push(`النص الذي أدخله المستخدم: «${r.extraction.searchText}»`);
-  if (r.extraction.extraPhrases.length) lines.push(`عبارات إضافية في البطاقة استُبعدت: ${r.extraction.extraPhrases.join(' | ')}`);
+  if (r.extraction.extraPhrases.length) lines.push(`عبارات مكتوبة على البطاقة وليست من المصدر (لا يُعتمد عليها): ${r.extraction.extraPhrases.join(' | ')}`);
   lines.push(`نوع النص المقدّر: ${r.extraction.contentType}${r.extraction.speaker ? ` (منسوب إلى ${r.extraction.speaker})` : ''}`);
   if (r.extraction.citedRef) lines.push(`المرجع المكتوب على البطاقة: ${r.extraction.citedRef}`);
   lines.push(`نتيجة التحقق: ${translate('ar', `status.${r.status}`)}`);
@@ -25,6 +25,11 @@ function buildContext(r: VerificationResult): string {
   }
   lines.push(`مصدر البيانات: ${r.provider.live ? 'الدرر السنية مباشرة' : 'نصوص الصحيحين أو نسخة مخزنة من الدرر'}`);
   return lines.join('\n');
+}
+
+/** إزالة رموز التنسيق إن ظهرت في الجواب */
+function clean(t: string): string {
+  return t.replace(/\*\*(.+?)\*\*/g, '$1').replace(/^\s*[*-]\s+/gm, '• ').replace(/^#+\s*/gm, '').trim();
 }
 
 export default function AskBayyinah({ result }: { result: VerificationResult }) {
@@ -81,7 +86,7 @@ export default function AskBayyinah({ result }: { result: VerificationResult }) 
       {chat.map((m, i) => (
         <div key={i} className="ask-pair">
           <p className="ask-q">{m.q}</p>
-          <p className="ask-a">{m.a}</p>
+          <p className="ask-a">{clean(m.a)}</p>
         </div>
       ))}
       {busy ? <p className="fine">{t('ask.thinking')}</p> : null}

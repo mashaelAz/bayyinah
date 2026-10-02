@@ -21,6 +21,8 @@ export function buildSystemPrompt(lang: string): string {
 - يجوز لك شرح معاني مصطلحات الحديث العامة باختصار (مثل: صحيح، حسن، ضعيف، موضوع، متواتر، مرسل) دون تطبيقها على نص لم يرد حكمه في البيانات.
 - لا تُفتِ في المسائل الشخصية أو الفقهية؛ أحِل إلى أهل العلم.
 - نص الحديث وحكم المحدث يُنقلان بالعربية كما هما حتى لو كانت الإجابة بلغة أخرى.
+- العبارات المكتوبة على البطاقة (مثل «صحيح الترمذي» أو «انشر تؤجر») ليست مصدرًا ولا حكمًا؛ لا تعتمد عليها ولا تنسب النتيجة إليها. المصدر هو «المحدّث» و«الكتاب» في البيانات فقط.
+- اكتب نصًا عاديًا بلا رموز تنسيق (لا نجوم ولا علامات #)، وابدأ بالجواب مباشرة دون ترحيب.
 - أجب بلغة المستخدم (${LANG_NAME[lang] ?? 'العربية'})، بأسلوب واضح ولطيف، في حدود 120 كلمة.`;
 }
 
@@ -35,7 +37,7 @@ async function gemini(model: string, system: string, user: string): Promise<stri
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: 'user', parts: [{ text: user }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 600 },
+        generationConfig: { temperature: 0.2, maxOutputTokens: 2048 },
       }),
     });
     if (!res.ok) return null;
@@ -59,7 +61,7 @@ async function claude(system: string, user: string): Promise<string | null> {
       headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model: process.env.AI_MODEL || 'claude-haiku-4-5-20251001',
-        max_tokens: 600,
+        max_tokens: 1200,
         temperature: 0.2,
         system,
         messages: [{ role: 'user', content: user }],

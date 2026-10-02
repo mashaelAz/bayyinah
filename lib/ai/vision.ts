@@ -41,7 +41,7 @@ async function geminiRead(model: string, base64: string, mediaType: string): Pro
       headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY as string },
       body: JSON.stringify({
         contents: [{ parts: [{ inline_data: { mime_type: mediaType, data: base64 } }, { text: PROMPT }] }],
-        generationConfig: { temperature: 0, maxOutputTokens: 800 },
+        generationConfig: { temperature: 0, maxOutputTokens: 2048 },
       }),
     });
     if (!res.ok) return null;
@@ -71,7 +71,7 @@ async function claudeRead(base64: string, mediaType: string): Promise<string | n
       },
       body: JSON.stringify({
         model: process.env.AI_MODEL || 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
+        max_tokens: 1500,
         temperature: 0,
         messages: [
           {
