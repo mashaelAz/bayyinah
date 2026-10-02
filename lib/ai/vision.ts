@@ -16,10 +16,46 @@ const PROMPT = `انسخ كل النص العربي المكتوب في هذه �
 - إذا لم يكن في الصورة نص عربي أعد سطرًا فارغًا.`;
 
 export function isAiOcrEnabled(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return Boolean(process.env.GEMINI_API_KEY || process.env.ANTHROPIC_API_KEY);
 }
 
+/** يفضّل Gemini (له حصة مجانية بلا بطاقة دفع)، ثم Claude إن وُجد مفتاحه */
 export async function aiReadImage(base64: string, mediaType: string): Promise<string | null> {
+  if (process.env.GEMINI_API_KEY) {
+    const models = [process.env.GEMINI_MODEL, 'gemini-flash-latest', 'gemini-flash-lite-latest'].filter(Boolean) as string[];
+    for (const m of models) {
+      const out = await geminiRead(m, base64, mediaType);
+      if (out !== null) return out;
+    }
+  }
+  return claudeRead(base64, mediaType);
+}
+
+async function geminiRead(model: string, base64: string, mediaType: string): Promise<string | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20000);
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY as string },
+      body: JSON.stringify({
+        contents: [{ parts: [{ inline_data: { mime_type: mediaType, data: base64 } }, { text: PROMPT }] }],
+        generationConfig: { temperature: 0, maxOutputTokens: 800 },
+      }),
+    });
+    if (!res.ok) return null;
+    const body = await res.json();
+    const parts: { text?: string }[] = body?.candidates?.[0]?.content?.parts ?? [];
+    return parts.map((p) => p.text ?? '').join('').trim();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function claudeRead(base64: string, mediaType: string): Promise<string | null> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return null;
   const controller = new AbortController();
