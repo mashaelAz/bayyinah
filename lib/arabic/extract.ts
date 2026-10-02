@@ -57,10 +57,11 @@ function extractQuoted(text: string): string | null {
 
 export function classifyText(text: string, attribution: string | null): ContentType {
   const n = normalizeArabic(text);
+  const plain = stripDiacritics(text);
   if (/﴿|﴾/.test(text) || /^(قال تعالي|قال الله تعالي|بسم الله الرحمن الرحيم)/.test(n)) {
     return 'quran';
   }
-  if (attribution || /ﷺ|صلى الله عليه وسلم|رسول الله|قال النبي/.test(text)) {
+  if (attribution || /ﷺ|صلى الله عليه وسلم|رسول الله|قال النبي/.test(plain) || /صلي الله عليه وسلم|رسول الله/.test(n)) {
     return 'hadith';
   }
   if (/^(عن|قال) (عمر|علي|ابي بكر|عثمان|ابن عباس|ابن مسعود|ابن عمر|عايشه)\b/.test(n) &&
