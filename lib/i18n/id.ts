@@ -279,6 +279,7 @@ export const id: Messages = {
   'faq.5.a': 'Amanah menuntut teks dan hukum ditampilkan dengan lafaz sumbernya. Kami menerjemahkan antarmuka dan penjelasan, bukan matan hadis atau hukum ahli hadis.',
 
   'footer.privacy': 'Kebijakan privasi',
+  'footer.eval': 'Uji kinerja',
   'footer.history': 'Riwayat',
   'footer.sources': 'Sumber',
   'footer.standards': 'Standar ilmiah',

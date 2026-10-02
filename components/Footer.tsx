@@ -17,6 +17,7 @@ export default function Footer() {
             <Link href="/#sources">{t('footer.sources')}</Link>
             <Link href="/#standards">{t('footer.standards')}</Link>
             <Link href="/history">{t('footer.history')}</Link>
+            <Link href="/eval">{t('footer.eval')}</Link>
             <Link href="/privacy">{t('footer.privacy')}</Link>
           </nav>
         </div>

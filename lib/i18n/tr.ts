@@ -279,6 +279,7 @@ export const tr: Messages = {
   'faq.5.a': 'Emanet, metnin ve hükmün kaynaktaki lafzıyla gösterilmesini gerektirir. Arayüzü ve açıklamaları çeviririz; hadis metnini veya muhaddisin hükmünü değil.',
 
   'footer.privacy': 'Gizlilik politikası',
+  'footer.eval': 'Performans testi',
   'footer.history': 'Geçmiş',
   'footer.sources': 'Kaynaklar',
   'footer.standards': 'İlmî standart',

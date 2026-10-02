@@ -375,3 +375,7 @@ details.raw summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 @media (max-width: 760px) { .compare { grid-template-columns: 1fr; } }
 .compare .block { height: 100%; }
 .hero-audience { margin: 6px 0 0; font-weight: 600; color: var(--plum); font-size: 16px; }
+
+/* صفحة اختبار الأداء */
+.eval-table td, .eval-table th { font-size: 0.86rem; vertical-align: top; }
+@media (max-width: 760px) { .stats[style] { grid-template-columns: 1fr 1fr !important; } }

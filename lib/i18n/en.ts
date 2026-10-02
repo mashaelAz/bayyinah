@@ -280,6 +280,7 @@ export const en: Messages = {
   'faq.5.a': 'Faithfulness requires showing the text and ruling in the source’s own words. We translate the interface and explanations, not the Hadith or the scholar’s ruling.',
 
   'footer.privacy': 'Privacy policy',
+  'footer.eval': 'Performance test',
   'footer.history': 'History',
   'footer.sources': 'Sources',
   'footer.standards': 'Scholarly standard',

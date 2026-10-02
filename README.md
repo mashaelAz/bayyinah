@@ -61,7 +61,7 @@
 ```bash
 npm install
 npm run dev        # http://localhost:3000
-npm test           # 18 اختبارًا لمحرك التحقق
+npm test           # 24 اختبارًا لمحرك التحقق
 ```
 
 على ويندوز، إذا ظهر خطأ «running scripts is disabled» استخدم `npm.cmd` بدل `npm`.
@@ -78,6 +78,7 @@ npm test           # 18 اختبارًا لمحرك التحقق
 
 - `/api/health` حالة عامة.
 - `/api/health?dorar=1` يختبر اتصال الخادم بالدرر ويعرض السبب عند الفشل.
+- `/eval` **إعادة الاختبار:** 20 حالة × 3 مرات على الدرر مباشرة، مع نسبة السلوك الصحيح والثبات والزمن وتنزيل النتائج.
 
 ## النشر
 
@@ -92,7 +93,7 @@ npm test           # 18 اختبارًا لمحرك التحقق
 ```
 app/
   page.tsx               الصفحة الرئيسية (المشكلة، الحل، التحقق، المعيار العلمي، المصادر، الأسئلة)
-  history/  privacy/  result/
+  history/  privacy/  result/  eval/ (اختبار الأداء)
   api/dorar              وسيط احتياطي للدرر السنية
   api/assist             المساعد اللغوي الاختياري (فصل فقط)
   api/health             فحص التشغيل
@@ -116,6 +117,8 @@ docs/                    التوثيق المطلوب للتسليم
 - [docs/TOOLS_AND_LICENSES.md](docs/TOOLS_AND_LICENSES.md) — سجل الأدوات والتراخيص
 - [docs/TEST_PLAN.md](docs/TEST_PLAN.md) — خطة الاختبار ونتائجه
 - [docs/CRITERIA.md](docs/CRITERIA.md) — مطابقة معايير التحكيم السبعة
+- [docs/EVALUATION.md](docs/EVALUATION.md) — منهجية الاختبار والنتائج والمقارنة واختبار المستخدمين والقيود
+- [docs/OPERATIONS.md](docs/OPERATIONS.md) — التكلفة والصيانة والمسؤوليات وبديل الاعتماد الحرج
 - [docs/PITCH.md](docs/PITCH.md) — العرض ونص الفيديو والأسئلة المتوقعة
 
 ## نسخة البداية

@@ -279,6 +279,7 @@ export const fr: Messages = {
   'faq.5.a': 'Par fidélité : le texte et le jugement sont affichés tels que dans la source. Nous traduisons l’interface et les explications, pas le hadith ni le jugement.',
 
   'footer.privacy': 'Confidentialité',
+  'footer.eval': 'Test de performance',
   'footer.history': 'Historique',
   'footer.sources': 'Sources',
   'footer.standards': 'Norme scientifique',
