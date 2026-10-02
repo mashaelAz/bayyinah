@@ -149,7 +149,7 @@ export const en: Messages = {
   'type.dua': 'This looks like a supplication. We searched Hadith sources without assuming it was narrated from the Prophet ﷺ.',
   'type.athar': 'This looks like a report attributed to a Companion or Successor, not a Hadith of the Prophet ﷺ.',
   'type.saying': 'This looks like a saying attributed to a scholar, not a Hadith.',
-  'fallback.note': 'A direct connection to Dorar wasn’t possible, so this result comes from the texts of the two Sahihs or a stored copy of Dorar records. Open the source link to confirm.',
+  'fallback.note': 'Source of this result: the texts of the two Sahihs or a verified copy of Dorar records stored in Bayyinah (a direct connection to the encyclopedia isn’t available right now). Open the source link to confirm.',
   'r.checked': 'Text checked',
   'r.showOriginal': 'Show the original text from the card',
   'r.attribution': 'Attribution on the card: “{text}”. It was separated from the search and does not prove the attribution.',

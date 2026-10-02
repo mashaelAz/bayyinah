@@ -149,7 +149,7 @@ export const fr: Messages = {
   'type.dua': 'Ce texte semble être une invocation. Nous avons cherché dans les sources du hadith sans supposer qu’elle est rapportée du Prophète ﷺ.',
   'type.athar': 'Ce texte semble être une parole attribuée à un Compagnon ou à un Successeur, non un hadith du Prophète ﷺ.',
   'type.saying': 'Ce texte semble être une parole attribuée à un savant, non un hadith.',
-  'fallback.note': 'Connexion directe à Dorar impossible : ce résultat provient des textes des deux Sahih ou d’une copie enregistrée de Dorar. Ouvrez le lien de la source pour confirmer.',
+  'fallback.note': 'Source de ce résultat : les textes des deux Sahih ou une copie vérifiée de Dorar conservée dans Bayyinah (connexion directe à l’encyclopédie indisponible pour l’instant). Ouvrez le lien de la source pour confirmer.',
   'r.checked': 'Texte vérifié',
   'r.showOriginal': 'Afficher le texte original de la carte',
   'r.attribution': 'Attribution sur la carte : « {text} ». Elle a été séparée de la recherche et ne prouve pas l’attribution.',

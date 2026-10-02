@@ -149,7 +149,7 @@ export const id: Messages = {
   'type.dua': 'Teks ini tampaknya doa. Kami mencarinya di sumber hadis tanpa menganggapnya diriwayatkan dari Nabi ﷺ.',
   'type.athar': 'Teks ini tampaknya atsar dari sahabat atau tabiin, bukan hadis marfu dari Nabi ﷺ.',
   'type.saying': 'Teks ini tampaknya ucapan seorang ulama, bukan hadis.',
-  'fallback.note': 'Koneksi langsung ke Dorar tidak berhasil, jadi hasil ini berasal dari teks dua Shahih atau salinan tersimpan dari Dorar. Buka tautan sumber untuk memastikan.',
+  'fallback.note': 'Sumber hasil ini: teks dua Shahih atau salinan terverifikasi dari Dorar yang tersimpan di Bayyinah (koneksi langsung ke ensiklopedia sedang tidak tersedia). Buka tautan sumber untuk memastikan.',
   'r.checked': 'Teks yang diperiksa',
   'r.showOriginal': 'Tampilkan teks asli dari kartu',
   'r.attribution': 'Penyandaran pada kartu: “{text}”. Ini dipisahkan dari pencarian dan tidak membuktikan penyandarannya.',

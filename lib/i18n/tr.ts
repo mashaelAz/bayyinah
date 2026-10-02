@@ -149,7 +149,7 @@ export const tr: Messages = {
   'type.dua': 'Bu metin bir dua gibi görünüyor. Peygamber ﷺ’den rivayet edildiğini varsaymadan hadis kaynaklarında aradık.',
   'type.athar': 'Bu metin bir sahabî veya tâbiîye nispet edilen bir eser gibi görünüyor; Peygamber ﷺ’e merfû bir hadis değil.',
   'type.saying': 'Bu metin bir âlime nispet edilen bir söz gibi görünüyor; hadis değil.',
-  'fallback.note': 'Dürer’e doğrudan bağlanılamadı; bu sonuç iki Sahih’in metinlerinden veya Dürer’in kayıtlı bir kopyasından geliyor. Doğrulamak için kaynak bağlantısını açın.',
+  'fallback.note': 'Bu sonucun kaynağı: iki Sahih’in metinleri veya Beyyine’de saklanan doğrulanmış Dürer kopyası (ansiklopediye doğrudan bağlantı şu an yok). Doğrulamak için kaynak bağlantısını açın.',
   'r.checked': 'Doğrulanan metin',
   'r.showOriginal': 'Karttaki orijinal metni göster',
   'r.attribution': 'Karttaki nispet ifadesi: “{text}”. Aramadan ayrıldı ve nispetin sabit olduğunu göstermez.',
