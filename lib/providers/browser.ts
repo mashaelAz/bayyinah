@@ -10,10 +10,10 @@ import type { SourceRecord } from '../types.ts';
  * فلا يتأثر بحجب الطلبات الآلية من الخوادم، ويعمل على أي استضافة.
  */
 
-const TIMEOUT_MS = 15000;
+const TIMEOUT_MS = 12000;
 let counter = 0;
 
-function jsonp(url: string): Promise<unknown> {
+function jsonp(url: string, noReferrer: boolean): Promise<unknown> {
   return new Promise((resolve, reject) => {
     if (typeof document === 'undefined') {
       reject(new ProviderUnavailableError('no_browser'));
@@ -48,10 +48,31 @@ function jsonp(url: string): Promise<unknown> {
       reject(new ProviderUnavailableError('script_blocked'));
     };
     script.async = true;
-    script.referrerPolicy = 'no-referrer';
+    if (noReferrer) script.referrerPolicy = 'no-referrer';
     script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${name}`;
     document.head.appendChild(script);
   });
+}
+
+/** طلب مباشر من المتصفح؛ ينجح فقط إذا أرسلت الموسوعة ترويسة السماح عبر المصادر (CORS) */
+async function corsFetch(url: string): Promise<unknown> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal: controller.signal, mode: 'cors', credentials: 'omit' });
+    if (!res.ok) throw new ProviderUnavailableError(`http_${res.status}`);
+    const text = await res.text();
+    // قد تكون الاستجابة ملفوفة بدالة؛ نأخذ ما بين أول قوس معقوف وآخره
+    const i = text.indexOf('{');
+    const j = text.lastIndexOf('}');
+    if (i < 0 || j < i) throw new ProviderUnavailableError('bad_format');
+    return JSON.parse(text.slice(i, j + 1));
+  } catch (err) {
+    if (err instanceof ProviderUnavailableError) throw err;
+    throw new ProviderUnavailableError((err as Error).name === 'AbortError' ? 'timeout' : 'cors');
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export class BrowserDorarProvider implements HadithProvider {
@@ -70,14 +91,24 @@ export class BrowserDorarProvider implements HadithProvider {
     const hit = this.cache.get(key);
     if (hit) return hit;
     const url = `${this.baseUrl}?skey=${encodeURIComponent(key)}`;
+    // ثلاث طرق من المتصفح بالترتيب: طلب عادي (إن سمحت الموسوعة بذلك)، ثم JSONP، ثم JSONP دون مُحيل
     let data: unknown;
-    try {
-      data = await jsonp(url);
-    } catch {
-      // إعادة محاولة واحدة: الشبكة أو الموسوعة قد تتأخر لحظيًا
-      await new Promise((r) => setTimeout(r, 800));
-      data = await jsonp(url);
+    let lastErr: unknown = null;
+    const strategies: (() => Promise<unknown>)[] = [
+      () => corsFetch(url),
+      () => jsonp(url, false),
+      () => jsonp(url, true),
+    ];
+    for (const run of strategies) {
+      try {
+        data = await run();
+        lastErr = null;
+        break;
+      } catch (err) {
+        lastErr = err;
+      }
     }
+    if (lastErr) throw lastErr instanceof ProviderUnavailableError ? lastErr : new ProviderUnavailableError('network');
     let records: SourceRecord[];
     try {
       records = parseDorarResponse(data, key, new Date().toISOString());
