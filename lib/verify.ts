@@ -3,20 +3,19 @@ import { normalizeArabic, stripDiacritics, tokenize } from './arabic/normalize.t
 import { matchHadithText } from './matching/engine.ts';
 import { diffTexts } from './matching/diff.ts';
 import { extractSourceGrade, gradeTone } from './grades.ts';
-import { ProviderUnavailableError, dorarSearchUrl } from './providers/types.ts';
-import { levelLabel, matchableSourceText } from './display.ts';
-export { levelLabel, matchableSourceText };
-import type { ProviderChain } from './providers/index.ts';
+import { ProviderUnavailableError, dorarSearchUrl, type HadithProvider } from './providers/types.ts';
+import { matchableSourceText } from './display.ts';
 import type {
   EvidenceStep,
   ExtractionResult,
   ResultStatus,
   ScholarRuling,
+  SourceRecord,
   TextMatch,
   VerificationResult,
 } from './types.ts';
 
-/** حدود قرارات الحالة — مبنية على تشابه النص فقط */
+/** حدود قرارات الحالة — مبنية على تشابه النص فقط، لا على صحة الحديث */
 export const THRESHOLDS = {
   verified: 0.92,
   variant: 0.6,
@@ -30,7 +29,8 @@ export interface VerifyInput {
 }
 
 export interface VerifyDeps {
-  providers: ProviderChain;
+  /** تُجرَّب بالترتيب حتى ينجح أحدها */
+  providers: HadithProvider[];
   assist?: (base: ExtractionResult) => Promise<ExtractionResult>;
 }
 
@@ -89,52 +89,24 @@ function rulingsConflictForNarrator(rulings: ScholarRuling[], narrator: string):
   return tones.has('strong') && tones.has('weak');
 }
 
-/** شرح مبسّط للنتيجة. يصف ما وجده النظام ولا يضيف حكمًا من عنده. */
-export function explainResult(r: Pick<VerificationResult, 'status' | 'best' | 'diff' | 'extraction' | 'rulingsDiffer'>): string {
-  const grade = r.best ? extractSourceGrade(r.best.record) : null;
-  const who = r.best ? `${r.best.record.scholar}${r.best.record.source ? ` في «${r.best.record.source}»` : ''}` : '';
-  switch (r.status) {
-    case 'verified_match':
-      return r.best?.isPartOfSource
-        ? `النص الذي أدخلته جزء من رواية موجودة في المصدر.${grade ? ` وحكم ${who} عليها: «${grade}».` : ' ولم يذكر المصدر حكمًا لهذه الرواية.'}`
-        : `وجدنا نصًا مطابقًا في المصدر.${grade ? ` وحكم ${who} عليه: «${grade}».` : ' ولم يذكر المصدر حكمًا لهذه الرواية.'}`;
-    case 'wording_variant':
-      return `وجدنا رواية قريبة في المصدر، لكن ألفاظ النص المتداول تختلف عنها${r.diff ? ` (أُضيفت أو تغيّرت ${r.diff.addedCount} كلمة، وسقطت ${r.diff.removedCount})` : ''}. الحكم المنقول يخص لفظ المصدر، لا الصيغة المتداولة.`;
-    case 'needs_review':
-      return r.rulingsDiffer
-        ? 'اختلفت أحكام المحدثين على هذه الرواية في المصدر، فلا نعرض نتيجة واحدة آليًا. راجع الأحكام أدناه أو أهل الاختصاص.'
-        : 'وجدنا نتائج متقاربة جزئيًا فقط، ولا تكفي لإعطاء نتيجة موثقة آليًا. راجع المصدر أو أهل الاختصاص قبل إعادة النشر.';
-    case 'not_found':
-      return 'لم نعثر على نتيجة موثقة مطابقة لهذا اللفظ في المصادر المتاحة. وهذا لا يعني تلقائيًا أن النص موضوع.';
-    case 'source_unavailable':
-      return 'تعذر الوصول إلى مصدر التحقق حاليًا. لم نصدر نتيجة غير موثقة.';
-  }
-}
-
 export async function verifyText(input: VerifyInput, deps: VerifyDeps): Promise<VerificationResult> {
   const evidence: EvidenceStep[] = [];
   let extraction = extractSearchText(input.text, input.extractedText ?? '');
 
-  if (input.fromImage) {
-    evidence.push({ label: 'تم استخراج النص من الصورة', detail: 'بتقنية التعرف الضوئي على الحروف، مع إتاحة تصحيحه قبل البحث' });
-  }
-  if (deps.assist) {
-    extraction = await deps.assist(extraction);
-  }
-  evidence.push({ label: 'تم تنظيف النص لأغراض البحث', detail: 'إزالة التشكيل والتطويل وتوحيد صور الحروف، دون تعديل النص المعروض' });
+  if (input.fromImage) evidence.push({ code: 'ocr_done' });
+  if (deps.assist) extraction = await deps.assist(extraction);
+  evidence.push({ code: 'normalized' });
   evidence.push({
-    label: 'تم تحديد العبارة المحتملة',
-    detail: [
-      extraction.attribution ? `فُصلت صيغة النسبة: «${extraction.attribution}»` : null,
-      extraction.extraPhrases.length ? `استُبعدت ${extraction.extraPhrases.length} عبارة إضافية من البحث` : null,
-      extraction.aiAssisted ? 'بمساعدة نموذج لغوي (للفصل فقط، دون أي حكم)' : 'بالقواعد اللغوية',
-    ]
-      .filter(Boolean)
-      .join('، '),
+    code: 'phrase_identified',
+    params: {
+      attribution: extraction.attribution ?? '',
+      extras: extraction.extraPhrases.length,
+      ai: extraction.aiAssisted,
+    },
   });
 
   const checkedAt = new Date().toISOString();
-  const base = {
+  const empty = {
     extraction,
     best: null,
     diff: null,
@@ -143,50 +115,55 @@ export async function verifyText(input: VerifyInput, deps: VerifyDeps): Promise<
     candidatesCount: 0,
     checkedAt,
   };
+  const firstId = deps.providers[0]?.id ?? 'none';
 
   if (tokenize(extraction.normalizedSearchText).length === 0) {
-    const r = { ...base, status: 'not_found' as const };
+    evidence.push({ code: 'nothing_to_search' });
     return {
-      ...r,
-      provider: { id: deps.providers.primary.id, name: deps.providers.primary.name, live: deps.providers.primary.live, fallbackUsed: false },
+      ...empty,
+      status: 'not_found',
+      provider: { id: firstId, live: true, fallbackUsed: false },
       evidence,
-      explanation: 'لم نجد نصًا قابلًا للبحث بعد استبعاد العبارات الإضافية.',
       searchUrl: dorarSearchUrl(''),
     };
   }
 
   const query = toSourceQuery(extraction.searchText);
-  let provider = deps.providers.primary;
-  let fallbackUsed = false;
-  let records;
+  let records: SourceRecord[] | null = null;
   let searchUrl = dorarSearchUrl(query);
+  let used: HadithProvider | null = null;
+  let anyLiveFailed = false;
+  let lastReason = '';
 
-  try {
-    const res = await provider.searchHadithSources(query);
-    records = res.records;
-    searchUrl = res.searchUrl;
-  } catch (err) {
-    if (!(err instanceof ProviderUnavailableError) || !deps.providers.fallback) {
-      evidence.push({ label: 'تعذر الوصول إلى المصدر', detail: (err as Error).message });
-      return {
-        ...base,
-        status: 'source_unavailable',
-        provider: { id: provider.id, name: provider.name, live: provider.live, fallbackUsed: false },
-        evidence,
-        explanation: explainResult({ ...base, status: 'source_unavailable' }),
-        searchUrl,
-      };
+  for (const provider of deps.providers) {
+    try {
+      const res = await provider.searchHadithSources(query);
+      records = res.records;
+      searchUrl = res.searchUrl;
+      used = provider;
+      break;
+    } catch (err) {
+      const reason = err instanceof ProviderUnavailableError ? err.message : 'error';
+      lastReason = reason;
+      if (provider.live) anyLiveFailed = true;
+      evidence.push({ code: 'provider_failed', params: { provider: provider.id, reason } });
     }
-    evidence.push({ label: 'تعذر الاتصال المباشر بالمصدر', detail: `السبب: ${(err as Error).message}. استُخدمت النسخة المخزنة الموثقة` });
-    provider = deps.providers.fallback;
-    fallbackUsed = true;
-    const res = await provider.searchHadithSources(query);
-    records = res.records;
-    searchUrl = res.searchUrl;
   }
 
-  evidence.push({ label: `تم البحث في: ${provider.name}`, detail: `عبارة البحث: «${query.split(' ').slice(0, 7).join(' ')}»` });
-  evidence.push({ label: `تم العثور على ${records.length} نتيجة` });
+  if (!used || !records) {
+    evidence.push({ code: 'unavailable', params: { reason: lastReason } });
+    return {
+      ...empty,
+      status: 'source_unavailable',
+      provider: { id: firstId, live: true, fallbackUsed: false },
+      evidence,
+      searchUrl,
+    };
+  }
+
+  const fallbackUsed = !used.live && anyLiveFailed;
+  evidence.push({ code: 'searched', params: { provider: used.id, query: query.split(' ').slice(0, 7).join(' ') } });
+  evidence.push({ code: 'found', params: { count: records.length } });
 
   const matches = matchHadithText(extraction.searchText, extraction.normalizedSearchText, records);
   const top = matches[0] ?? null;
@@ -197,10 +174,7 @@ export async function verifyText(input: VerifyInput, deps: VerifyDeps): Promise<
 
   const best = status === 'not_found' || status === 'source_unavailable' ? null : top;
   if (best) {
-    evidence.push({
-      label: 'تم اختيار أعلى تطابق نصي',
-      detail: `مستوى المطابقة: ${levelLabel(best.level)} — تشابه النص ${Math.round(best.similarity * 100)}% (تشابه ألفاظ فقط، لا درجة صحة)`,
-    });
+    evidence.push({ code: 'best_match', params: { level: best.level, pct: Math.round(best.similarity * 100) } });
   }
 
   const otherRulings = best ? collectRulings(matches, best) : [];
@@ -214,13 +188,18 @@ export async function verifyText(input: VerifyInput, deps: VerifyDeps): Promise<
 
   if (best) {
     const grade = extractSourceGrade(best.record);
-    evidence.push({
-      label: grade ? 'تم نقل الحكم من المصدر الأصلي' : 'لم يذكر المصدر حكمًا لهذه الرواية',
-      detail: grade ? `«${grade}» — ${best.record.scholar}، ${best.record.source} ${best.record.reference}` : undefined,
-    });
+    evidence.push(
+      grade
+        ? {
+            code: 'grade_quoted',
+            params: { grade, scholar: best.record.scholar, source: best.record.source, ref: best.record.reference },
+          }
+        : { code: 'no_grade' },
+    );
   }
+  if (status === 'source_unavailable') evidence.push({ code: 'unavailable', params: { reason: lastReason } });
 
-  const result: VerificationResult = {
+  return {
     status,
     extraction,
     best,
@@ -228,12 +207,9 @@ export async function verifyText(input: VerifyInput, deps: VerifyDeps): Promise<
     otherRulings,
     rulingsDiffer,
     candidatesCount: records.length,
-    provider: { id: provider.id, name: provider.name, live: provider.live, fallbackUsed },
+    provider: { id: used.id, live: used.live, fallbackUsed },
     evidence,
-    explanation: '',
     searchUrl,
     checkedAt,
   };
-  result.explanation = explainResult(result);
-  return result;
 }

@@ -1,5 +1,5 @@
 /**
- * الأنواع المشتركة في تثبّت.
+ * الأنواع المشتركة في بيّنة.
  *
  * قاعدة أساسية: أي حكم حديثي (grade) يأتي من سجل المصدر (SourceRecord) فقط.
  * لا يوجد في النظام أي حقل أو دالة تجعل الذكاء الاصطناعي يُصدر حكمًا.
@@ -96,9 +96,23 @@ export type ResultStatus =
   | 'needs_review'
   | 'source_unavailable';
 
+/** خطوة في مسار الدليل، برمز قابل للترجمة ومعطيات تُعرض كما هي */
+export type EvidenceCode =
+  | 'ocr_done'
+  | 'normalized'
+  | 'phrase_identified'
+  | 'provider_failed'
+  | 'searched'
+  | 'found'
+  | 'best_match'
+  | 'grade_quoted'
+  | 'no_grade'
+  | 'unavailable'
+  | 'nothing_to_search';
+
 export interface EvidenceStep {
-  label: string;
-  detail?: string;
+  code: EvidenceCode;
+  params?: Record<string, string | number | boolean>;
 }
 
 export interface ScholarRuling {
@@ -119,9 +133,8 @@ export interface VerificationResult {
   otherRulings: ScholarRuling[];
   rulingsDiffer: boolean;
   candidatesCount: number;
-  provider: { id: string; name: string; live: boolean; fallbackUsed: boolean };
+  provider: { id: string; live: boolean; fallbackUsed: boolean };
   evidence: EvidenceStep[];
-  explanation: string;
   searchUrl: string;
   checkedAt: string;
 }

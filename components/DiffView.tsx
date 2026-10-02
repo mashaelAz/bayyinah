@@ -1,26 +1,29 @@
-import type { TextDiff } from '../lib/types.ts';
+'use client';
 
-export default function DiffView({ diff }: { diff: TextDiff }) {
-  return (
-    <section className="block" aria-labelledby="diff-title">
-      <h3 id="diff-title">بصمة النص: ما الذي تغيّر؟</h3>
+import type { TextDiff } from '../lib/types.ts';
+import { useI18n } from '../lib/i18n/index.tsx';
+
+export default function DiffView({ diff, bare = false }: { diff: TextDiff; bare?: boolean }) {
+  const { t } = useI18n();
+  const body = (
+    <>
       <div className="diff-grid">
         <div>
-          <div className="fine">النص المتداول</div>
-          <p className="diff-text">
-            {diff.circulating.map((t, i) => (
+          <div className="fine">{t('diff.circulating')}</div>
+          <p className="diff-text" lang="ar">
+            {diff.circulating.map((tok, i) => (
               <span key={i}>
-                <span className={t.op === 'added' ? 'tok-added' : undefined}>{t.text}</span>{' '}
+                <span className={tok.op === 'added' ? 'tok-added' : undefined}>{tok.text}</span>{' '}
               </span>
             ))}
           </p>
         </div>
         <div>
-          <div className="fine">النص في المصدر</div>
-          <p className="diff-text">
-            {diff.source.map((t, i) => (
+          <div className="fine">{t('diff.source')}</div>
+          <p className="diff-text" lang="ar">
+            {diff.source.map((tok, i) => (
               <span key={i}>
-                <span className={t.op === 'removed' ? 'tok-removed' : undefined}>{t.text}</span>{' '}
+                <span className={tok.op === 'removed' ? 'tok-removed' : undefined}>{tok.text}</span>{' '}
               </span>
             ))}
           </p>
@@ -29,20 +32,27 @@ export default function DiffView({ diff }: { diff: TextDiff }) {
       <div className="legend">
         <span>
           <i style={{ background: 'var(--added)' }} />
-          مضاف أو مغيّر في النص المتداول
+          {t('diff.legendAdded')}
         </span>
         <span>
           <i style={{ background: 'var(--removed)' }} />
-          موجود في المصدر وغير موجود في النص المتداول
+          {t('diff.legendRemoved')}
         </span>
       </div>
       <p className="fingerprint">
-        {diff.addedCount > 0
-          ? `تم رصد ${diff.addedCount} كلمة مضافة أو مغيّرة في النص المتداول، أي اختلاف في ${diff.differencePercent}% من صياغته.`
-          : 'لم نرصد كلمات مضافة في النص المتداول.'}
-        {diff.removedCount > 0 ? ` وسقطت منه ${diff.removedCount} كلمة موجودة في المصدر.` : ''}
+        {diff.addedCount > 0 ? t('diff.added', { n: diff.addedCount, pct: diff.differencePercent }) : t('diff.noneAdded')}{' '}
+        {diff.removedCount > 0 ? t('diff.removed', { n: diff.removedCount }) : ''}
       </p>
-      <p className="fine">هذه النسبة فرق في الألفاظ فقط، ولا تمثل حكمًا على الحديث.</p>
+      <p className="fine" style={{ marginBottom: 0 }}>
+        {t('diff.note')}
+      </p>
+    </>
+  );
+  if (bare) return body;
+  return (
+    <section className="block" aria-labelledby="diff-title">
+      <h3 id="diff-title">{t('diff.title')}</h3>
+      {body}
     </section>
   );
 }

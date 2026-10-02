@@ -1,20 +1,13 @@
 'use client';
 
-import PageHead from '../../components/PageHead';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import PageHead from '../../components/PageHead';
 import { clearHistory, readHistory, type HistoryEntry } from '../../lib/history.ts';
-import type { ResultStatus } from '../../lib/types.ts';
-
-const LABEL: Record<ResultStatus, string> = {
-  verified_match: 'مطابقة موثقة',
-  wording_variant: 'اختلاف في اللفظ',
-  not_found: 'لم نعثر على هذا اللفظ',
-  needs_review: 'يحتاج إلى تثبّت',
-  source_unavailable: 'تعذر الوصول إلى المصدر',
-};
+import { useI18n } from '../../lib/i18n/index.tsx';
 
 export default function HistoryPage() {
+  const { t, lang } = useI18n();
   const [items, setItems] = useState<HistoryEntry[] | null>(null);
 
   useEffect(() => {
@@ -26,61 +19,61 @@ export default function HistoryPage() {
   const variants = list.filter((i) => i.status === 'wording_variant').length;
 
   return (
-    <div className="page">
-      <PageHead title="آخر عمليات التحقق" />
-      <div className="container prose">
-        <p>هذا السجل محفوظ في متصفحك فقط، والأرقام أدناه من استخدامك الفعلي على هذا الجهاز.</p>
-
-        <div className="stats">
-          <div className="stat">
-            <b>{list.length}</b>
-            <span>عملية تحقق</span>
-          </div>
-          <div className="stat">
-            <b>{found}</b>
-            <span>نص وُجد له مصدر</span>
-          </div>
-          <div className="stat">
-            <b>{variants}</b>
-            <span>نص فيه اختلاف في اللفظ</span>
-          </div>
-        </div>
-
-        {items === null ? null : list.length === 0 ? (
-          <p>
-            لا توجد عمليات تحقق بعد. <Link href="/verify">ابدأ التحقق</Link> وستظهر نتائجك هنا.
-          </p>
-        ) : (
-          <>
-            {list.map((i) => (
-              <div key={i.id} className="history-item">
-                <p>{i.text}</p>
-                <small>
-                  {LABEL[i.status]}
-                  {i.source ? `، المصدر: ${i.source}` : ''}
-                  {i.grade ? `، حكم المحدّث: ${i.grade}` : ''}
-                  {'، '}
-                  {new Date(i.at).toLocaleString('ar-SA')}
-                </small>
-                <Link href={`/result?q=${encodeURIComponent(i.text)}`} style={{ fontSize: 14 }}>
-                  إعادة التحقق
-                </Link>
-              </div>
-            ))}
-            <div className="actions">
-              <button
-                className="btn btn-ghost btn-small"
-                onClick={() => {
-                  clearHistory();
-                  setItems([]);
-                }}
-              >
-                مسح السجل
-              </button>
+    <>
+      <PageHead title={t('history.title')} sub={t('history.lede')} />
+      <div className="page">
+        <div className="container prose">
+          <div className="stats">
+            <div className="stat">
+              <b>{list.length}</b>
+              <span>{t('history.total')}</span>
             </div>
-          </>
-        )}
+            <div className="stat">
+              <b>{found}</b>
+              <span>{t('history.found')}</span>
+            </div>
+            <div className="stat">
+              <b>{variants}</b>
+              <span>{t('history.variants')}</span>
+            </div>
+          </div>
+
+          {items === null ? null : list.length === 0 ? (
+            <p>
+              {t('history.empty')} <Link href="/#verify">{t('history.start')}</Link>
+            </p>
+          ) : (
+            <>
+              {list.map((i) => (
+                <div key={i.id} className="history-item">
+                  <p lang="ar">{i.text}</p>
+                  <small>
+                    {t(`status.${i.status}`)}
+                    {i.source ? ` — ${i.source}` : ''}
+                    {i.grade ? ` — «${i.grade}»` : ''}
+                    {' — '}
+                    {new Date(i.at).toLocaleString(lang === 'ar' ? 'ar-SA' : lang)}
+                  </small>
+                  <Link href={`/result?lang=${lang}&q=${encodeURIComponent(i.text)}`} style={{ fontSize: 14 }}>
+                    {t('history.recheck')}
+                  </Link>
+                </div>
+              ))}
+              <div className="actions">
+                <button
+                  className="btn btn-ghost btn-small"
+                  onClick={() => {
+                    clearHistory();
+                    setItems([]);
+                  }}
+                >
+                  {t('history.clear')}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

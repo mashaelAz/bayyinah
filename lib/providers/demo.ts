@@ -10,7 +10,6 @@ import type { SourceRecord } from '../types.ts';
  */
 export class DemoProvider implements HadithProvider {
   id = 'demo';
-  name = 'نسخة مخزنة موثقة من الدرر السنية';
   live = false;
 
   private readonly dataset: SourceRecord[];

@@ -1,9 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { VerificationResult } from '../lib/types.ts';
+import type { ExtractionResult, VerificationResult } from '../lib/types.ts';
 import { ocrService } from '../lib/ocr/ocrService.ts';
 import { saveToHistory } from '../lib/history.ts';
+import { verifyText } from '../lib/verify.ts';
+import { browserProviders } from '../lib/providers/index.ts';
+import { demoRecords } from '../lib/providers/demoData.ts';
+import { useI18n } from '../lib/i18n/index.tsx';
+import { IconSpark } from './Icons';
 import ResultCard from './ResultCard';
 
 type Tab = 'image' | 'text';
@@ -11,32 +16,39 @@ type Phase = 'idle' | 'ocr' | 'review' | 'verifying' | 'done';
 
 const ACCEPT = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
 
-const OCR_STEPS = ['جاري قراءة الصورة…', 'جاري استخراج النص…'];
-const VERIFY_STEPS = ['جاري تحديد العبارة…', 'جاري البحث في المصادر…', 'جاري مقارنة النتائج…'];
-
+/** نصوص الأمثلة عربية في كل اللغات؛ هي ما يُتحقق منه */
 export const EXAMPLES = [
+  { key: 1 as const, text: 'قال رسول الله ﷺ: إنما الأعمال بالنيات وإنما لكل امرئ ما نوى' },
   {
-    title: 'حديث بلفظ موثق',
-    text: 'قال رسول الله ﷺ: إنما الأعمال بالنيات وإنما لكل امرئ ما نوى',
-    note: 'لفظ موجود في المصدر كما هو',
-  },
-  {
-    title: 'نص باختلاف في اللفظ',
+    key: 2 as const,
     text: 'قال رسول الله ﷺ: «إنما الأعمال بالنية، وإنما لكل إنسان ما نوى، فمن صدقت نيته بلغ مراده»\nانشر تؤجر\nلا تجعلها تقف عندك',
-    note: 'نص اختبار محرّف عمدًا، مع عبارات دعوية إضافية',
   },
-  {
-    title: 'عبارة بلا تطابق واضح',
-    text: 'من جد وجد ومن زرع حصد',
-    note: 'مثل عربي، لا يُتوقع وجوده في المصادر الحديثية',
-  },
+  { key: 3 as const, text: 'من جد وجد ومن زرع حصد' },
 ];
 
-interface Props {
-  autoText?: string;
+/** المساعد اللغوي الاختياري عبر خادم بيّنة؛ إن لم يكن مفعّلًا يكمل التحقق بالقواعد */
+async function assistViaServer(base: ExtractionResult): Promise<ExtractionResult> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch('/api/assist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: base.originalText, extractedText: base.extractedText }),
+      signal: controller.signal,
+    });
+    if (res.status !== 200) return base;
+    const body = await res.json();
+    return body?.extraction?.searchText ? (body.extraction as ExtractionResult) : base;
+  } catch {
+    return base;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
-export default function VerifyPanel({ autoText }: Props) {
+export default function VerifyPanel({ autoText }: { autoText?: string }) {
+  const { t } = useI18n();
   const [tab, setTab] = useState<Tab>('text');
   const [phase, setPhase] = useState<Phase>('idle');
   const [text, setText] = useState('');
@@ -47,61 +59,67 @@ export default function VerifyPanel({ autoText }: Props) {
   const [drag, setDrag] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [ocrProgress, setOcrProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
   const [ocrQuality, setOcrQuality] = useState<number | null>(null);
-  const [lastOpts, setLastOpts] = useState<{ fromImage: boolean; extractedText: string }>({ fromImage: false, extractedText: '' });
-  const editRef = useRef<HTMLTextAreaElement>(null);
+  const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VerificationResult | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [lastOpts, setLastOpts] = useState({ fromImage: false, extractedText: '' });
   const resultRef = useRef<HTMLDivElement>(null);
+  const editRef = useRef<HTMLTextAreaElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
   const autoRan = useRef(false);
 
-  // أزرار البطل: #verify-image و #verify-text
+  // أزرار الواجهة: #verify-image و #verify-text
   useEffect(() => {
     const apply = () => {
       if (window.location.hash === '#verify-image') setTab('image');
-      if (window.location.hash === '#verify-text') setTab('text');
+      if (window.location.hash === '#verify-text') {
+        setTab('text');
+        setTimeout(() => textRef.current?.focus(), 300);
+      }
     };
     apply();
     window.addEventListener('hashchange', apply);
     return () => window.removeEventListener('hashchange', apply);
   }, []);
 
-  useEffect(() => () => {
-    if (preview) URL.revokeObjectURL(preview);
-  }, [preview]);
+  useEffect(
+    () => () => {
+      if (preview) URL.revokeObjectURL(preview);
+    },
+    [preview],
+  );
 
-  const runVerify = useCallback(async (value: string, opts: { fromImage: boolean; extractedText: string }) => {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      setError('أدخل نصًا للتحقق منه.');
-      return;
-    }
-    setError(null);
-    setResult(null);
-    setLastOpts(opts);
-    setPhase('verifying');
-    setStepIndex(0);
-    const timer = setInterval(() => setStepIndex((i) => Math.min(i + 1, VERIFY_STEPS.length - 1)), 700);
-    try {
-      const res = await fetch('/api/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: trimmed, extractedText: opts.extractedText, fromImage: opts.fromImage }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'تعذر الوصول إلى مصدر التحقق حاليًا. لم نصدر نتيجة غير موثقة.');
-      setResult(data as VerificationResult);
-      saveToHistory(data as VerificationResult);
-      setPhase('done');
-      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-    } catch (e) {
-      setError((e as Error).message || 'تعذر الوصول إلى مصدر التحقق حاليًا. لم نصدر نتيجة غير موثقة.');
-      setPhase(opts.fromImage ? 'review' : 'idle');
-    } finally {
-      clearInterval(timer);
-    }
-  }, []);
+  const runVerify = useCallback(
+    async (value: string, opts: { fromImage: boolean; extractedText: string }) => {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        setError(t('err.empty'));
+        return;
+      }
+      setError(null);
+      setResult(null);
+      setLastOpts(opts);
+      setPhase('verifying');
+      setStepIndex(0);
+      const timer = setInterval(() => setStepIndex((i) => Math.min(i + 1, 2)), 700);
+      try {
+        const r = await verifyText(
+          { text: trimmed.slice(0, 2000), extractedText: opts.extractedText, fromImage: opts.fromImage },
+          { providers: browserProviders(demoRecords), assist: assistViaServer },
+        );
+        setResult(r);
+        saveToHistory(r);
+        setPhase('done');
+        setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+      } catch {
+        setError(t('err.generic'));
+        setPhase(opts.fromImage ? 'review' : 'idle');
+      } finally {
+        clearInterval(timer);
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
     if (autoText && !autoRan.current) {
@@ -114,17 +132,18 @@ export default function VerifyPanel({ autoText }: Props) {
   function pickFile(f: File | undefined) {
     if (!f) return;
     if (!ACCEPT.includes(f.type)) {
-      setError('صيغة غير مدعومة. استخدم صورة PNG أو JPG أو JPEG أو WEBP.');
+      setError(t('err.format'));
       return;
     }
     if (f.size > 8 * 1024 * 1024) {
-      setError('حجم الصورة أكبر من 8 ميغابايت. جرّب لقطة شاشة أصغر.');
+      setError(t('err.size'));
       return;
     }
     setError(null);
     setResult(null);
     setPhase('idle');
     setExtracted('');
+    setOcrQuality(null);
     setFile(f);
     setPreview(URL.createObjectURL(f));
   }
@@ -146,21 +165,19 @@ export default function VerifyPanel({ autoText }: Props) {
       setOcrQuality(out.quality);
       setExtracted(out.text);
       setText(out.text);
-      setFromImage(true);
-      setPhase('review');
     } catch {
-      setPhase('review');
       setExtracted('');
       setText('');
       setOcrQuality(0);
-      setFromImage(true);
-      setError('لم نتمكن من قراءة النص بوضوح. يمكنك كتابة النص يدويًا أدناه أو تجربة صورة أوضح.');
+      setError(t('err.ocr'));
     }
+    setFromImage(true);
+    setPhase('review');
   }
 
-  function applyExample(t: string) {
+  function applyExample(v: string) {
     setTab('text');
-    setText(t);
+    setText(v);
     setFromImage(false);
     setResult(null);
     setPhase('idle');
@@ -180,27 +197,23 @@ export default function VerifyPanel({ autoText }: Props) {
   }
 
   const busy = phase === 'ocr' || phase === 'verifying';
+  const ocrSteps = [t('ocr.reading'), t('ocr.extracting')];
+  const verifySteps = [t('step.identify'), t('step.search'), t('step.compare')];
+  const showReview = phase === 'review' || (fromImage && (phase === 'verifying' || phase === 'done'));
 
   return (
-    <div className="verify" id="verify">
-      <div className="tabs" role="tablist" aria-label="طريقة الإدخال">
-        <button
-          role="tab"
-          className="tab"
-          aria-selected={tab === 'image'}
-          onClick={() => setTab('image')}
-          disabled={busy}
-        >
-          رفع صورة
+    <div className="verify">
+      <div className="ai-note">
+        <IconSpark />
+        {t('verify.ai')}
+      </div>
+
+      <div className="tabs" role="tablist" aria-label={t('tabs.aria')}>
+        <button role="tab" className="tab" aria-selected={tab === 'image'} onClick={() => setTab('image')} disabled={busy}>
+          {t('tabs.image')}
         </button>
-        <button
-          role="tab"
-          className="tab"
-          aria-selected={tab === 'text'}
-          onClick={() => setTab('text')}
-          disabled={busy}
-        >
-          كتابة النص
+        <button role="tab" className="tab" aria-selected={tab === 'text'} onClick={() => setTab('text')} disabled={busy}>
+          {t('tabs.text')}
         </button>
       </div>
 
@@ -220,10 +233,9 @@ export default function VerifyPanel({ autoText }: Props) {
                 pickFile(e.dataTransfer.files?.[0]);
               }}
             >
-              <strong>اسحب البطاقة هنا أو اختر صورة من جهازك</strong>
-              <small>يدعم PNG وJPG وJPEG وWEBP</small>
+              <strong>{t('drop.title')}</strong>
+              <small>{t('drop.formats')}</small>
               <input
-                ref={inputRef}
                 type="file"
                 accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
                 className="sr-only"
@@ -233,44 +245,43 @@ export default function VerifyPanel({ autoText }: Props) {
           ) : (
             <div className="preview">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={preview} alt="معاينة البطاقة المرفوعة" />
+              <img src={preview} alt={t('img.alt')} />
               <div style={{ flex: 1, minWidth: 220 }}>
                 {phase === 'idle' ? (
                   <div className="actions" style={{ marginTop: 0 }}>
                     <button className="btn btn-primary" onClick={runOcr}>
-                      استخراج النص
+                      {t('btn.extract')}
                     </button>
                     <button className="btn btn-ghost" onClick={resetAll}>
-                      اختيار صورة أخرى
+                      {t('btn.otherImage')}
                     </button>
                   </div>
                 ) : null}
                 {phase === 'ocr' ? (
                   <div className="loading" aria-live="polite">
-                    {OCR_STEPS.map((s, i) => (
+                    {ocrSteps.map((s, i) => (
                       <div key={s} className={`loading-step ${i < stepIndex ? 'done' : i === stepIndex ? 'active' : ''}`}>
                         <span className="dot" />
                         {s}
                         {i === 1 && stepIndex === 1 ? ` ${ocrProgress}%` : ''}
                       </div>
                     ))}
-                    <p className="fine">أول مرة قد تستغرق وقتًا أطول لتحميل نموذج قراءة العربية.</p>
+                    <p className="fine">{t('ocr.firstTime')}</p>
                   </div>
                 ) : null}
               </div>
             </div>
           )}
-          <p className="field-hint">تستخدم الصورة لغرض استخراج النص والتحقق فقط، وتُقرأ داخل متصفحك دون رفعها أو حفظها.</p>
+          <p className="field-hint">{t('privacy.image')}</p>
 
-          {phase === 'review' || (fromImage && (phase === 'verifying' || phase === 'done')) ? (
+          {showReview ? (
             <div style={{ marginTop: 18 }}>
               <label className="field-label" htmlFor="ocr-text">
-                النص المستخرج
+                {t('ocr.label')}
               </label>
               {ocrQuality !== null && ocrQuality < 0.7 && text.trim() ? (
                 <div className="alert alert-warn" role="status" style={{ marginTop: 0, marginBottom: 10 }}>
-                  <strong>قراءة الصورة غير واضحة.</strong> الخط في البطاقة مزخرف أو ملوّن، فقد تكون بعض الكلمات خاطئة. امسح النص
-                  واكتب نص الحديث كما تراه في الصورة، ثم اضغط «متابعة التحقق».
+                  <strong>{t('ocr.warnTitle')}</strong> {t('ocr.warnBody')}
                 </div>
               ) : null}
               <textarea
@@ -280,19 +291,20 @@ export default function VerifyPanel({ autoText }: Props) {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 disabled={busy}
-                placeholder="اكتب النص كما في البطاقة…"
+                placeholder={t('ocr.placeholder')}
+                lang="ar"
               />
-              <p className="field-hint">راجع النص وصحّح أي خطأ في القراءة قبل التحقق.</p>
+              <p className="field-hint">{t('ocr.hint')}</p>
               <div className="actions">
                 <button
                   className="btn btn-primary"
                   disabled={busy || !text.trim()}
                   onClick={() => runVerify(text, { fromImage: true, extractedText: extracted })}
                 >
-                  متابعة التحقق
+                  {t('btn.continue')}
                 </button>
                 <button className="btn btn-ghost" onClick={resetAll} disabled={busy}>
-                  بدء من جديد
+                  {t('btn.restart')}
                 </button>
               </div>
             </div>
@@ -301,15 +313,17 @@ export default function VerifyPanel({ autoText }: Props) {
       ) : (
         <div role="tabpanel">
           <label className="field-label" htmlFor="input-text">
-            النص المراد التحقق منه
+            {t('text.label')}
           </label>
           <textarea
             id="input-text"
+            ref={textRef}
             className="input"
             value={text}
             onChange={(e) => setText(e.target.value)}
             disabled={busy}
-            placeholder="الصق الحديث أو العبارة التي تريد التحقق منها هنا…"
+            placeholder={t('text.placeholder')}
+            lang="ar"
           />
           <div className="actions">
             <button
@@ -317,24 +331,24 @@ export default function VerifyPanel({ autoText }: Props) {
               disabled={busy || !text.trim()}
               onClick={() => runVerify(text, { fromImage: false, extractedText: '' })}
             >
-              تحقق الآن
+              {t('btn.verify')}
             </button>
             {text ? (
               <button className="btn btn-ghost" onClick={resetAll} disabled={busy}>
-                مسح
+                {t('btn.clear')}
               </button>
             ) : null}
           </div>
 
           {phase !== 'done' && !busy ? (
             <>
-              <h3 style={{ margin: '26px 0 0', fontSize: 17 }}>جرّب مثالًا</h3>
+              <h3 className="examples-title">{t('examples.title')}</h3>
               <div className="examples">
                 {EXAMPLES.map((ex) => (
-                  <button key={ex.title} className="example" onClick={() => applyExample(ex.text)}>
-                    <b>{ex.title}</b>
-                    <span>{ex.text.split('\n')[0]}</span>
-                    <small>{ex.note}</small>
+                  <button key={ex.key} className="example" onClick={() => applyExample(ex.text)}>
+                    <b>{t(`ex.${ex.key}.t`)}</b>
+                    <span className="ar">{ex.text.split('\n')[0]}</span>
+                    <small>{t(`ex.${ex.key}.n`)}</small>
                   </button>
                 ))}
               </div>
@@ -345,7 +359,7 @@ export default function VerifyPanel({ autoText }: Props) {
 
       {phase === 'verifying' ? (
         <div className="loading" aria-live="polite">
-          {VERIFY_STEPS.map((s, i) => (
+          {verifySteps.map((s, i) => (
             <div key={s} className={`loading-step ${i < stepIndex ? 'done' : i === stepIndex ? 'active' : ''}`}>
               <span className="dot" />
               {s}
@@ -369,10 +383,10 @@ export default function VerifyPanel({ autoText }: Props) {
               setResult(null);
               setPhase(lastOpts.fromImage ? 'review' : 'idle');
               setTimeout(() => {
-                const el = lastOpts.fromImage ? editRef.current : (document.getElementById('input-text') as HTMLTextAreaElement | null);
+                const el = lastOpts.fromImage ? editRef.current : textRef.current;
                 el?.focus();
                 el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }, 50);
+              }, 60);
             }}
           />
         ) : null}

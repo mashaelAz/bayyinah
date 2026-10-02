@@ -1,25 +1,28 @@
+'use client';
+
 import Link from 'next/link';
+import { useI18n } from '../lib/i18n/index.tsx';
 
 export default function Footer() {
+  const { t } = useI18n();
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer-grid">
           <div>
-            <div className="footer-brand">تثبّت</div>
-            <p style={{ margin: '4px 0 0' }}>تقنية تساعدك على الوصول إلى المصدر قبل النشر.</p>
+            <div className="footer-brand">بيّنة</div>
+            <p style={{ margin: '2px 0 0' }}>{t('brand.tagline')}</p>
           </div>
-          <nav className="footer-links" aria-label="روابط التذييل">
-            <Link href="/sources">المصادر</Link>
-            <Link href="/how">المنهجية</Link>
-            <Link href="/disclaimer">إخلاء المسؤولية</Link>
-            <Link href="/privacy">سياسة الخصوصية</Link>
+          <nav className="footer-links" aria-label={t('nav.menu')}>
+            <Link href="/#sources">{t('footer.sources')}</Link>
+            <Link href="/#standards">{t('footer.standards')}</Link>
+            <Link href="/history">{t('footer.history')}</Link>
+            <Link href="/privacy">{t('footer.privacy')}</Link>
           </nav>
         </div>
-        <p className="disclaimer">
-          تثبّت أداة تقنية مساعدة للوصول إلى المصادر الحديثية، وليست جهة إصدار فتوى أو حكم شرعي مستقل. الأحكام الحديثية
-          المعروضة منسوبة إلى أصحابها ومصادرها، وقد تتطلب بعض الحالات الرجوع إلى أهل العلم والمتخصصين. المشروع مستقل ولا
-          يمثل الجهات المذكورة ولا يرتبط بها بشراكة رسمية.
+        <p className="disclaimer">{t('footer.disclaimer')}</p>
+        <p className="disclaimer" style={{ marginTop: 6 }}>
+          {t('footer.hackathon')} {t('sources.independent')}
         </p>
       </div>
     </footer>

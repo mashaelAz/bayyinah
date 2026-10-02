@@ -1,6 +1,3 @@
-import Ornament from './Ornament';
-
-/** رأس الصفحات الداخلية: شريط زمردي بنقش هندسي */
 export default function PageHead({ title, sub }: { title: string; sub?: string }) {
   return (
     <header className="page-head">
@@ -11,5 +8,3 @@ export default function PageHead({ title, sub }: { title: string; sub?: string }
     </header>
   );
 }
-
-export { Ornament };

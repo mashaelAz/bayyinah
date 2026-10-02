@@ -14,11 +14,10 @@ import type { SourceRecord } from '../lib/types.ts';
 
 const demo: SourceRecord[] = JSON.parse(readFileSync(new URL('../data/hadiths.json', import.meta.url), 'utf8')).records;
 const fixture = JSON.parse(readFileSync(new URL('./fixtures/dorar-niyyat.json', import.meta.url), 'utf8'));
-const demoChain = { primary: new DemoProvider(demo), fallback: null };
+const demoChain = [new DemoProvider(demo)];
 
 const down: HadithProvider = {
-  id: 'dorar',
-  name: 'down',
+  id: 'dorar-browser',
   live: true,
   async searchHadithSources() {
     throw new ProviderUnavailableError('offline');
@@ -82,18 +81,18 @@ test('اختلاف في اللفظ: تُكشف الكلمات المضافة', a
   const r = await verifyText({ text }, { providers: demoChain });
   assert.equal(r.status, 'wording_variant');
   assert.ok(r.diff && r.diff.addedCount >= 4);
-  assert.ok(r.explanation.includes('لفظ المصدر'));
+  assert.equal(r.provider.fallbackUsed, false);
 });
 
 test('لا تطابق: لا يوصف النص بأنه موضوع', async () => {
   const r = await verifyText({ text: 'من جد وجد ومن زرع حصد' }, { providers: demoChain });
   assert.equal(r.status, 'not_found');
   assert.equal(r.best, null);
-  assert.ok(r.explanation.includes('لا يعني تلقائيًا أن النص موضوع'));
+  assert.ok(r.evidence.some((e) => e.code === 'found'));
 });
 
 test('تعذر المصدر بلا بديل: لا تصدر نتيجة', async () => {
-  const r = await verifyText({ text: 'إنما الأعمال بالنيات' }, { providers: { primary: down, fallback: null } });
+  const r = await verifyText({ text: 'إنما الأعمال بالنيات' }, { providers: [down] });
   assert.equal(r.status, 'source_unavailable');
   assert.equal(r.best, null);
 });
@@ -101,7 +100,7 @@ test('تعذر المصدر بلا بديل: لا تصدر نتيجة', async ()
 test('تعذر المصدر مع البديل: تُستخدم النسخة المخزنة ويُصرّح بذلك', async () => {
   const r = await verifyText(
     { text: 'إنما الأعمال بالنيات وإنما لكل امرئ ما نوى' },
-    { providers: { primary: down, fallback: new DemoProvider(demo) } },
+    { providers: [down, new DemoProvider(demo)] },
   );
   assert.equal(r.status, 'verified_match');
   assert.equal(r.provider.fallbackUsed, true);
@@ -110,7 +109,7 @@ test('تعذر المصدر مع البديل: تُستخدم النسخة ال�
 test('تعذر المصدر مع البديل ولا تطابق: لا نقول «لم نعثر»', async () => {
   const r = await verifyText(
     { text: 'من جد وجد ومن زرع حصد' },
-    { providers: { primary: down, fallback: new DemoProvider(demo) } },
+    { providers: [down, new DemoProvider(demo)] },
   );
   assert.equal(r.status, 'source_unavailable');
 });
@@ -132,4 +131,26 @@ test('إشارة المصدر على البطاقة تُستبعد من البح
   const r = extractSearchText('قال رسول الله ﷺ:\nالبخيل من ذكرت عنده فلم يصل علي\nصحيح الترمذي ٣٥٤٦');
   assert.equal(r.searchText, 'البخيل من ذكرت عنده فلم يصل علي');
   assert.equal(r.extraPhrases.length, 1);
+});
+
+test('سلسلة المزوّدات: يُستخدم الثاني إذا فشل الأول، ويُسجّل الفشل في الدليل', async () => {
+  const live: HadithProvider = { id: 'dorar-server', live: true, searchHadithSources: (q) => new DemoProvider(demo).searchHadithSources(q) };
+  const r = await verifyText({ text: 'إنما الأعمال بالنيات وإنما لكل امرئ ما نوى' }, { providers: [down, live] });
+  assert.equal(r.status, 'verified_match');
+  assert.equal(r.provider.id, 'dorar-server');
+  assert.equal(r.provider.fallbackUsed, false);
+  assert.ok(r.evidence.some((e) => e.code === 'provider_failed' && e.params?.reason === 'offline'));
+});
+
+test('أحكام متعارضة على رواية الراوي نفسه: يحتاج إلى تثبّت', async () => {
+  const r = await verifyText({ text: 'إن البخيل كل البخيل من ذكرت عنده فلم يصل علي' }, { providers: demoChain });
+  assert.ok(r.best);
+  assert.ok(r.otherRulings.length >= 2);
+  assert.ok(r.otherRulings.every((x) => demo.some((d) => d.grade === x.grade)));
+});
+
+test('تحليل استجابة JSONP بعد فكّ الدالة', () => {
+  const body = 'cbTest( ' + JSON.stringify(fixture) + ')';
+  const inner = JSON.parse(body.slice(body.indexOf('(') + 1, body.lastIndexOf(')')));
+  assert.equal(parseDorarResponse(inner, 'x', 'y').length, 3);
 });

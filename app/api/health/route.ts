@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const base = {
     ok: true,
-    provider: process.env.HADITH_PROVIDER || 'auto',
+    provider: 'dorar-browser → dorar-server → demo',
     aiAssist: isAiAssistEnabled(),
     time: new Date().toISOString(),
   };

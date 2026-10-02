@@ -1,39 +1,42 @@
 import type { Metadata, Viewport } from 'next';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { LanguageProvider } from '../lib/i18n/index.tsx';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'تثبّت — قبل أن تنشر',
+  title: 'بيّنة | Bayyinah — قبل أن تنشر… تبيّن',
   description:
-    'تحقق من الأحاديث والعبارات الدينية المتداولة خلال ثوانٍ، بالاعتماد على مصادر حديثية موثوقة وتقنيات الذكاء الاصطناعي.',
+    'تحقق من الأحاديث والعبارات الدينية المتداولة خلال ثوانٍ، بالاعتماد على الموسوعة الحديثية في الدرر السنية وتقنيات الذكاء الاصطناعي. ست لغات.',
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0f3d2e',
+  themeColor: '#006c35',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" data-lang="ar">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;800&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap"
         />
       </head>
       <body>
-        <a href="#main" className="sr-only">
-          تخطَّ إلى المحتوى
-        </a>
-        <Navbar />
-        <main id="main">{children}</main>
-        <Footer />
+        <LanguageProvider>
+          <a href="#main" className="sr-only skip">
+            Skip / تخطَّ
+          </a>
+          <Navbar />
+          <main id="main">{children}</main>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

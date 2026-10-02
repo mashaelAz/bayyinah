@@ -1,10 +1,10 @@
 {
-  "name": "tathabbat",
+  "name": "bayyinah",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "license": "MIT",
-  "description": "تثبّت — أداة ذكية للوصول إلى المصدر الحديثي قبل نشر النصوص الدينية المتداولة",
+  "description": "بيّنة — أداة ذكية للوصول إلى المصدر الحديثي قبل نشر النصوص الدينية المتداولة",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

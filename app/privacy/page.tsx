@@ -1,28 +1,24 @@
-import PageHead from '../../components/PageHead';
+'use client';
 
-export const metadata = { title: 'سياسة الخصوصية — تثبّت' };
+import PageHead from '../../components/PageHead';
+import { useI18n } from '../../lib/i18n/index.tsx';
 
 export default function PrivacyPage() {
+  const { t } = useI18n();
+  const parts = ['images', 'text', 'history', 'never'] as const;
   return (
-    <div className="page">
-      <PageHead title="سياسة الخصوصية" />
-      <div className="container prose">
-        <p>صُمّمت نسخة الهاكثون لتجمع أقل قدر ممكن من البيانات.</p>
-        <h2>الصور</h2>
-        <p>
-          تستخدم الصورة لغرض استخراج النص والتحقق فقط. تُقرأ داخل متصفحك، ولا تُرفع إلى خوادمنا ولا تُحفظ. يُحمّل المتصفح نموذج
-          قراءة العربية من شبكة توزيع عامة عند أول استخدام.
-        </p>
-        <h2>النص</h2>
-        <p>
-          يُرسل النص الذي تؤكده إلى خادم تثبّت للبحث عنه في المصدر الحديثي، ولا نحفظه في قاعدة بيانات. إذا فُعّل المساعد اللغوي
-          الاختياري، يُرسل النص إليه لفصل المتن عن الإضافات فقط.
-        </p>
-        <h2>سجل عمليات التحقق</h2>
-        <p>يُحفظ في متصفحك فقط (Local Storage)، ويمكنك مسحه من صفحة «آخر عمليات التحقق». لا نطلب حسابًا ولا تسجيلًا.</p>
-        <h2>ما لا نفعله</h2>
-        <p>لا نجمع بيانات شخصية، ولا نستنتج أو نصنّف المعتقدات أو السمات الدينية لأي مستخدم.</p>
+    <>
+      <PageHead title={t('privacy.title')} sub={t('privacy.intro')} />
+      <div className="page">
+        <div className="container prose">
+          {parts.map((p) => (
+            <section key={p}>
+              <h2>{t(`privacy.${p}.t`)}</h2>
+              <p>{t(`privacy.${p}.b`)}</p>
+            </section>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

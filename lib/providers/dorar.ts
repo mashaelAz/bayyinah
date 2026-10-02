@@ -1,5 +1,5 @@
 import { parseDorarResponse } from './dorarParser.ts';
-import { dorarSearchUrl, ProviderUnavailableError, type HadithProvider, type ProviderSearchResult } from './types.ts';
+import { ProviderUnavailableError, searchInStages, type HadithProvider, type ProviderSearchResult } from './types.ts';
 import type { SourceRecord } from '../types.ts';
 
 /**
@@ -22,8 +22,7 @@ const HEADERS: Record<string, string> = {
 };
 
 export class DorarProvider implements HadithProvider {
-  id = 'dorar';
-  name = 'الدرر السنية — الموسوعة الحديثية';
+  id = 'dorar-server';
   live = true;
 
   private readonly baseUrl: string;
@@ -32,13 +31,13 @@ export class DorarProvider implements HadithProvider {
     this.baseUrl = baseUrl;
   }
 
-  private async fetchOnce(query: string): Promise<SourceRecord[]> {
+  async fetchOnce(query: string): Promise<SourceRecord[]> {
     const key = query.trim();
     const cached = CACHE.get(key);
     if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.records;
 
     const url = `${this.baseUrl}?skey=${encodeURIComponent(key)}`;
-    let lastError = 'تعذر الاتصال';
+    let lastError = 'network';
     // محاولتان: أعطال الشبكة العابرة شائعة
     for (let attempt = 0; attempt < 2; attempt++) {
       const controller = new AbortController();
@@ -46,7 +45,7 @@ export class DorarProvider implements HadithProvider {
       try {
         const res = await fetch(url, { signal: controller.signal, headers: HEADERS, cache: 'no-store' });
         if (!res.ok) {
-          lastError = `ردّ المصدر برمز ${res.status}`;
+          lastError = `http_${res.status}`;
           continue;
         }
         const body = await res.text();
@@ -54,7 +53,7 @@ export class DorarProvider implements HadithProvider {
         try {
           json = JSON.parse(body);
         } catch {
-          lastError = 'ردّ المصدر بصيغة غير متوقعة (قد تكون صفحة حماية)';
+          lastError = 'bad_format';
           continue;
         }
         const records = parseDorarResponse(json, key, new Date().toISOString());
@@ -62,7 +61,7 @@ export class DorarProvider implements HadithProvider {
         return records;
       } catch (err) {
         const e = err as Error & { cause?: { code?: string } };
-        lastError = e.name === 'AbortError' ? 'انتهت مهلة الاتصال' : `${e.message}${e.cause?.code ? ` (${e.cause.code})` : ''}`;
+        lastError = e.name === 'AbortError' ? 'timeout' : `network${e.cause?.code ? `:${e.cause.code}` : ''}`;
       } finally {
         clearTimeout(timer);
       }
@@ -70,27 +69,7 @@ export class DorarProvider implements HadithProvider {
     throw new ProviderUnavailableError(lastError);
   }
 
-  /**
-   * بحث على مرحلتين: بأول كلمات النص (محرك البحث في المصدر يعمل أفضل بعبارة قصيرة مميزة)،
-   * ثم بمقطع أوسط إذا لم تظهر نتائج — مفيد حين تكون بداية النص المتداول محرّفة.
-   */
   async searchHadithSources(query: string): Promise<ProviderSearchResult> {
-    const words = query.split(/\s+/).filter(Boolean);
-    const attempts: string[] = [];
-    attempts.push(words.slice(0, 7).join(' '));
-    if (words.length > 8) {
-      const mid = Math.floor(words.length / 2);
-      attempts.push(words.slice(Math.max(0, mid - 3), mid + 3).join(' '));
-    }
-
-    const seen = new Map<string, SourceRecord>();
-    let lastQuery = attempts[0];
-    for (const q of attempts) {
-      lastQuery = q;
-      const records = await this.fetchOnce(q);
-      for (const r of records) seen.set(r.id, r);
-      if (seen.size >= 5) break;
-    }
-    return { records: [...seen.values()], searchUrl: dorarSearchUrl(lastQuery) };
+    return searchInStages(query, (q) => this.fetchOnce(q));
   }
 }

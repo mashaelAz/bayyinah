@@ -2,7 +2,7 @@ import type { ResultStatus, VerificationResult } from './types.ts';
 
 /** سجل عمليات التحقق في متصفح المستخدم فقط (Local Storage). لا حسابات ولا خادم. */
 
-const KEY = 'tathabbat:history:v1';
+const KEY = 'bayyinah:history:v1';
 const MAX = 50;
 
 export interface HistoryEntry {

@@ -1,5 +1,5 @@
 {
-  "_about": "سجلات منسوخة حرفيًا من الموسوعة الحديثية في الدرر السنية (dorar_api.json) بتاريخ 2026-10-01. للعرض والذاكرة المؤقتة والبديل عند تعذر الاتصال فقط، وليست بديلًا عن المصدر. لا يحتوي الملف أي سجل مختلق.",
+  "_about": "سجلات منسوخة حرفيًا من الموسوعة الحديثية في الدرر السنية (dorar.net/hadith، المصدر المعتمد للحديث في «المرجعية والحزمة العلمية والبيانات» للتحدي) عبر خدمتها العامة dorar_api.json. للعرض والبديل عند تعذر الاتصال فقط، وليست بديلًا عن المصدر. لا يحتوي الملف أي سجل مختلق.",
   "records": [
     {
       "id": "dorar-niyyat-01",
@@ -111,6 +111,48 @@
       "takhrij": "",
       "source_url": "https://dorar.net/hadith/search?q=%D8%A5%D9%86%D9%85%D8%A7%20%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84%20%D8%A8%D8%A7%D9%84%D9%86%D9%8A%D8%A7%D8%AA",
       "verified_at": "2026-10-01",
+      "provider": "demo-dorar"
+    },
+    {
+      "id": "dorar-bakheel-01",
+      "text": "إنَّ البخيلَ كُلَّ البخيلِ مَن ذُكِرْتُ عنده فلم يُصَلِّ عَلَيَّ",
+      "normalized_text": "ان البخيل كل البخيل من ذكرت عنده فلم يصل علي",
+      "narrator": "",
+      "scholar": "المقبلي",
+      "source": "المصابيح في الأحاديث المتواترة",
+      "reference": "589",
+      "grade": "متواتر معنى [كما قال في المقدمة]",
+      "takhrij": "",
+      "source_url": "https://dorar.net/hadith/search?q=%D8%A7%D9%84%D8%A8%D8%AE%D9%8A%D9%84%20%D9%85%D9%86%20%D8%B0%D9%83%D8%B1%D8%AA%20%D8%B9%D9%86%D8%AF%D9%87",
+      "verified_at": "2026-10-02",
+      "provider": "demo-dorar"
+    },
+    {
+      "id": "dorar-bakheel-02",
+      "text": "إنَّ البخيلَ كُلَّ البَخيلِ مَنْ ذُكِرْتُ عِندَهُ فلَمْ يُصَلِّ علَيَّ",
+      "normalized_text": "ان البخيل كل البخيل من ذكرت عنده فلم يصل علي",
+      "narrator": "أبو هريرة",
+      "scholar": "الألباني",
+      "source": "ضعيف الجامع",
+      "reference": "1422",
+      "grade": "ضعيف",
+      "takhrij": "",
+      "source_url": "https://dorar.net/hadith/search?q=%D8%A7%D9%84%D8%A8%D8%AE%D9%8A%D9%84%20%D9%85%D9%86%20%D8%B0%D9%83%D8%B1%D8%AA%20%D8%B9%D9%86%D8%AF%D9%87",
+      "verified_at": "2026-10-02",
+      "provider": "demo-dorar"
+    },
+    {
+      "id": "dorar-bakheel-03",
+      "text": "إنَّ البخيلَ كلَّ البخيلِ من ذُكِرْتُ عندَهُ ، فلم يُصَلِّ عليَّ",
+      "normalized_text": "ان البخيل كل البخيل من ذكرت عنده فلم يصل علي",
+      "narrator": "أبو هريرة",
+      "scholar": "الألباني",
+      "source": "السلسلة الضعيفة",
+      "reference": "7070",
+      "grade": "ضعيف",
+      "takhrij": "",
+      "source_url": "https://dorar.net/hadith/search?q=%D8%A7%D9%84%D8%A8%D8%AE%D9%8A%D9%84%20%D9%85%D9%86%20%D8%B0%D9%83%D8%B1%D8%AA%20%D8%B9%D9%86%D8%AF%D9%87",
+      "verified_at": "2026-10-02",
       "provider": "demo-dorar"
     }
   ]
