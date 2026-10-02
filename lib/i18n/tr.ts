@@ -111,9 +111,9 @@ export const tr: Messages = {
   'err.ocr': 'Metin net okunamadı. Aşağıya kendiniz yazın veya daha net bir görsel deneyin.',
   'err.generic': 'Beklenmeyen bir hata oluştu ve sonuç verilmedi. Tekrar deneyin.',
 
-  'status.verified_match': '✓ Doğrulanmış eşleşme',
-  'status.wording_variant': '! Farklı lafızla bulundu',
-  'status.not_found': 'Bu lafız bulunamadı',
+  'status.verified_match': "✓ Kaynakta bu lafızla geçiyor",
+  'status.wording_variant': "! Kaynakta farklı lafızla geçiyor",
+  'status.not_found': "Mevcut kaynaklarda bu lafızla bulunamadı",
   'status.needs_review': 'Daha fazla inceleme gerekir',
   'status.source_unavailable': 'Kaynağa ulaşılamıyor',
   'badge.live': 'Doğrulanmış kaynak: Dorar.net',
@@ -334,4 +334,7 @@ export const tr: Messages = {
   'showcase.before': "Dolaşımdaki kart",
   'showcase.after': "Düzeltmeden sonra",
   'showcase.note': "Gerçek bir örnek: doğru lafız ve hüküm Dorar.net’ten aktarıldı, ek ifadeler çıkarıldı.",
+  'grade.chip': "Hüküm: {grade}",
+  'hero.audience': "İçerik üreticileri, İslam’ı tanıtanlar ve dinî bir kart alan herkes için.",
+  'compare.input': "Girdiğiniz metin",
 };

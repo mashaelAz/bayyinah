@@ -110,9 +110,9 @@ export const ar = {
   'err.ocr': 'لم نتمكن من قراءة النص بوضوح. اكتب النص يدويًا أدناه أو جرّب صورة أوضح.',
   'err.generic': 'حدث خطأ غير متوقع، ولم نصدر نتيجة. أعد المحاولة.',
 
-  'status.verified_match': '✓ مطابقة موثقة',
-  'status.wording_variant': '! وُجد الحديث باختلاف في اللفظ',
-  'status.not_found': 'لم نعثر على هذا اللفظ',
+  'status.verified_match': "✓ ورد بهذا اللفظ في المصدر",
+  'status.wording_variant': "! ورد في المصدر بلفظ مختلف",
+  'status.not_found': "لم يرد بهذا اللفظ في المصادر المتاحة",
   'status.needs_review': 'يحتاج إلى تثبّت',
   'status.source_unavailable': 'تعذر الوصول إلى المصدر',
   'badge.live': 'مصدر موثق: الدرر السنية',
@@ -340,6 +340,9 @@ export const ar = {
   'showcase.before': "البطاقة المتداولة",
   'showcase.after': "بعد التصحيح",
   'showcase.note': "مثال حقيقي: اللفظ الصحيح والحكم منقولان من الدرر السنية، والعبارات المضافة محذوفة.",
+  'grade.chip': "حكم المحدّث: {grade}",
+  'hero.audience': "لصنّاع المحتوى والمعرّفين بالإسلام، ولكل من تصله بطاقة دينية.",
+  'compare.input': "النص المدخل",
 } as const;
 
 export type MessageKey = keyof typeof ar;

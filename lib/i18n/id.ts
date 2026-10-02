@@ -111,9 +111,9 @@ export const id: Messages = {
   'err.ocr': 'Teks tidak terbaca dengan jelas. Ketik di bawah, atau coba gambar yang lebih jelas.',
   'err.generic': 'Terjadi kesalahan tak terduga dan tidak ada hasil yang dikeluarkan. Coba lagi.',
 
-  'status.verified_match': '✓ Kecocokan terverifikasi',
-  'status.wording_variant': '! Ditemukan dengan lafaz berbeda',
-  'status.not_found': 'Lafaz ini tidak ditemukan',
+  'status.verified_match': "✓ Ada dengan lafaz ini di sumber",
+  'status.wording_variant': "! Ada di sumber dengan lafaz berbeda",
+  'status.not_found': "Tidak ditemukan dengan lafaz ini di sumber yang tersedia",
   'status.needs_review': 'Perlu pemeriksaan lanjut',
   'status.source_unavailable': 'Sumber tidak dapat dijangkau',
   'badge.live': 'Sumber terverifikasi: Dorar.net',
@@ -334,4 +334,7 @@ export const id: Messages = {
   'showcase.before': "Kartu yang beredar",
   'showcase.after': "Setelah dikoreksi",
   'showcase.note': "Contoh nyata: lafaz yang benar dan hukumnya dikutip dari Dorar.net, dan kalimat tambahan dihapus.",
+  'grade.chip': "Hukum: {grade}",
+  'hero.audience': "Untuk pembuat konten, para pengenal Islam, dan siapa pun yang menerima kartu keagamaan.",
+  'compare.input': "Teks Anda",
 };

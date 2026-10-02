@@ -61,9 +61,16 @@ export default function ResultCard({ result, onRetry, onEdit }: Props) {
   return (
     <article className="result" aria-live="polite" aria-labelledby="result-status">
       <div className="result-head">
-        <span id="result-status" className={`status status-${status}`}>
-          {t(`status.${status}`)}
-        </span>
+        <div className="status-row">
+          <span id="result-status" className={`status status-${status}`}>
+            {t(`status.${status}`)}
+          </span>
+          {grade ? (
+            <span className={`grade-chip chip-${tone}`} lang="ar">
+              {t('grade.chip', { grade })}
+            </span>
+          ) : null}
+        </div>
         {best ? (
           <a className="source-badge" href={best.record.source_url} target="_blank" rel="noopener noreferrer">
             {cached ? t('badge.cached') : t('badge.live')}
@@ -78,8 +85,9 @@ export default function ResultCard({ result, onRetry, onEdit }: Props) {
       {typeKey ? <div className="alert alert-info">{t(typeKey)}</div> : null}
       {result.provider.fallbackUsed ? <div className="alert alert-info">{t('fallback.note')}</div> : null}
 
+      <div className={best ? 'compare' : undefined}>
       <section className="block" aria-labelledby="checked-title">
-        <h3 id="checked-title">{t('r.checked')}</h3>
+        <h3 id="checked-title">{t('compare.input')}</h3>
         <p className="quote">{extraction.searchText}</p>
         {showOriginal ? (
           <details className="raw" style={{ marginTop: 10 }}>
@@ -95,6 +103,15 @@ export default function ResultCard({ result, onRetry, onEdit }: Props) {
           </p>
         ) : null}
       </section>
+
+      {best ? (
+        <section className="block quote-source" aria-labelledby="source-title">
+            <h3 id="source-title">{t('r.sourceText')}</h3>
+            <p className="quote">{matchableSourceText(best.record.text)}</p>
+          </section>
+
+      ) : null}
+      </div>
 
       {extraction.extraPhrases.length ? (
         <section className="block" aria-labelledby="extras-title">
@@ -112,11 +129,6 @@ export default function ResultCard({ result, onRetry, onEdit }: Props) {
 
       {best ? (
         <>
-          <section className="block quote-source" aria-labelledby="source-title">
-            <h3 id="source-title">{t('r.sourceText')}</h3>
-            <p className="quote">{matchableSourceText(best.record.text)}</p>
-          </section>
-
           <div className="ruling">
             <span className="label">{t('r.rulingLabel')}</span>
             <span className={`grade tone-${grade ? tone : 'neutral'}`} lang="ar">

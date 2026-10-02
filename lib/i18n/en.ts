@@ -111,9 +111,9 @@ export const en: Messages = {
   'err.ocr': 'We could not read the text clearly. Type it below, or try a clearer image.',
   'err.generic': 'Something unexpected happened and no result was issued. Try again.',
 
-  'status.verified_match': '✓ Verified match',
-  'status.wording_variant': '! Found with different wording',
-  'status.not_found': 'This wording was not found',
+  'status.verified_match': "✓ Found in this wording in the source",
+  'status.wording_variant': "! Found in the source with different wording",
+  'status.not_found': "Not found in this wording in the available sources",
   'status.needs_review': 'Needs further checking',
   'status.source_unavailable': 'Source unavailable',
   'badge.live': 'Verified source: Dorar.net',
@@ -335,4 +335,7 @@ export const en: Messages = {
   'showcase.before': "Circulating card",
   'showcase.after': "After correction",
   'showcase.note': "A real example: the correct wording and ruling are quoted from Dorar.net, and the added phrases are removed.",
+  'grade.chip': "Ruling: {grade}",
+  'hero.audience': "For content creators, those who introduce Islam, and anyone who receives a religious card.",
+  'compare.input': "Your text",
 };

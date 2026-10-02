@@ -47,6 +47,7 @@ export default function Home() {
             <small>{t('hero.verseRef')}</small>
           </div>
           <p className="hero-slogan">{t('hero.title')}</p>
+          <p className="hero-audience">{t('hero.audience')}</p>
           <p className="hero-lede">{t('hero.lede')}</p>
           <div className="hero-actions">
             <a href="#verify-image" className="btn btn-primary btn-big">

@@ -364,3 +364,14 @@ details.raw summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 .fix-cite { margin: 6px 0 0; font-family: var(--quote); font-size: 17px; color: var(--muted); direction: rtl; text-align: right; }
 .fix-ok .fix-cite b { color: var(--green); }
 .fix-warn .fix-cite b { color: var(--weak); }
+
+/* شارة الدرجة والمقارنة جنبًا إلى جنب */
+.status-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.grade-chip { display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 999px; font-family: var(--quote); font-weight: 700; font-size: 18px; border: 2px solid; }
+.chip-strong { color: var(--green); background: var(--green-soft); border-color: #a9d6bd; }
+.chip-weak { color: var(--weak); background: var(--weak-soft); border-color: #ebc4bc; }
+.chip-neutral { color: var(--lav-700); background: var(--lav-soft); border-color: var(--lav-line); }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+@media (max-width: 760px) { .compare { grid-template-columns: 1fr; } }
+.compare .block { height: 100%; }
+.hero-audience { margin: 6px 0 0; font-weight: 600; color: var(--plum); font-size: 16px; }

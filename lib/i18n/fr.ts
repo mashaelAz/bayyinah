@@ -111,9 +111,9 @@ export const fr: Messages = {
   'err.ocr': 'Le texte n’a pas pu être lu clairement. Saisissez-le ci-dessous ou essayez une image plus nette.',
   'err.generic': 'Une erreur inattendue s’est produite et aucun résultat n’a été émis. Réessayez.',
 
-  'status.verified_match': '✓ Correspondance vérifiée',
-  'status.wording_variant': '! Trouvé avec une formulation différente',
-  'status.not_found': 'Formulation introuvable',
+  'status.verified_match': "✓ Présent sous cette formulation dans la source",
+  'status.wording_variant': "! Présent dans la source avec une autre formulation",
+  'status.not_found': "Absent sous cette formulation des sources disponibles",
   'status.needs_review': 'À vérifier davantage',
   'status.source_unavailable': 'Source indisponible',
   'badge.live': 'Source vérifiée : Dorar.net',
@@ -334,4 +334,7 @@ export const fr: Messages = {
   'showcase.before': "Carte qui circule",
   'showcase.after': "Après correction",
   'showcase.note': "Exemple réel : le texte correct et le jugement sont cités de Dorar.net, et les ajouts sont retirés.",
+  'grade.chip': "Jugement : {grade}",
+  'hero.audience': "Pour les créateurs de contenu, ceux qui font connaître l’islam, et quiconque reçoit une carte religieuse.",
+  'compare.input': "Votre texte",
 };
