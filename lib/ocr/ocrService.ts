@@ -195,8 +195,21 @@ async function toJpegBase64(image: File | Blob, max = 1400): Promise<string> {
   return url.slice(url.indexOf(',') + 1);
 }
 
+/** ذاكرة مؤقتة: الصورة نفسها لا تُرسل مرتين، فلا تُستهلك الحصة المجانية بلا داعٍ */
+const aiCache = new Map<string, OcrResult>();
+
 /** القراءة بنموذج رؤية — بطلب صريح من المستخدم فقط */
 export async function aiOcr(image: File | Blob): Promise<OcrResult> {
+  const f = image as File;
+  const key = `${f.name ?? ''}|${image.size}|${f.lastModified ?? ''}`;
+  const hit = aiCache.get(key);
+  if (hit) return hit;
+  const result = await aiOcrFetch(image);
+  aiCache.set(key, result);
+  return result;
+}
+
+async function aiOcrFetch(image: File | Blob): Promise<OcrResult> {
   const data = await toJpegBase64(image);
   const res = await fetch('/api/ocr', {
     method: 'POST',
