@@ -1,25 +1,18 @@
-MIT License
+جميع الحقوق محفوظة © 2026 فريق بيّنة
+Copyright (c) 2026 Bayyinah team. All rights reserved.
 
-Copyright (c) 2026 Bayyinah team
+هذا المستودع منشور للعموم لغرض التقييم في «تحدي الذكاء الاصطناعي في خدمة المحتوى الإسلامي 2026»
+وفق متطلبات التسليم، ولا يمنح نشره أي ترخيص مفتوح المصدر.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+يُسمح بعرض الشفرة وتشغيلها وفحصها لأغراض التقييم فقط. لا يجوز نسخها أو تعديلها أو إعادة نشرها
+أو استخدامها تجاريًا دون إذن كتابي من أصحاب الحقوق. تخضع حقوق الجهة المنظمة لما ورد في
+الشروط والأحكام المعتمدة للتحدي.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This repository is publicly visible for evaluation in the AI Challenge in Serving Islamic Content 2026,
+as required by the submission rules. Its visibility does not grant any open-source license. Viewing,
+running and examining the code for evaluation purposes is permitted; copying, modifying, redistributing
+or commercial use requires written permission from the rights holders. The organiser's rights are
+governed by the challenge's terms and conditions.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-Hadith texts and scholarly rulings displayed by the application belong to their
-respective sources (primarily the Hadith Encyclopedia at dorar.net) and are shown
-with attribution for reference purposes only. They are not covered by this license.
+مكونات الطرف الثالث مرخّصة بتراخيصها الأصلية، ومسرودة في docs/TOOLS_AND_LICENSES.md.
+نصوص الأحاديث وأحكام المحدّثين ملك مصادرها، وتُعرض منسوبة إليها للإحالة فقط.
