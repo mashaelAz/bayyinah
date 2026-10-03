@@ -61,11 +61,33 @@ function logoMark(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: n
   ctx.restore();
 }
 
+/** الزخرفة الذهبية نفسها المستخدمة في الموقع (متغير --pattern-gold في التنسيق) */
+async function goldPattern(ctx: CanvasRenderingContext2D, cssVar = '--pattern-gold', size = 150): Promise<CanvasPattern | null> {
+  try {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(cssVar);
+    const m = raw.match(/url\(\s*["']?(data:image\/svg\+xml[^"]+)["']?\s*\)/);
+    if (!m) return null;
+    const img = new Image();
+    await new Promise<void>((res, rej) => {
+      img.onload = () => res();
+      img.onerror = () => rej(new Error('pattern'));
+      img.src = m[1];
+    });
+    const tile = document.createElement('canvas');
+    tile.width = size;
+    tile.height = size;
+    tile.getContext('2d')?.drawImage(img, 0, 0, size, size);
+    return ctx.createPattern(tile, 'repeat');
+  } catch {
+    return null;
+  }
+}
+
 function toneColor(grade: string): string {
   return gradeTone(grade) === 'weak' ? '#a3392b' : gradeTone(grade) === 'strong' ? '#006c35' : '#56439a';
 }
 
-async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 'ltr', qrUrl: string): Promise<Blob | null> {
+export async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 'ltr', qrUrl: string): Promise<Blob | null> {
   const canvas = document.createElement('canvas');
   canvas.width = W;
   canvas.height = H;
@@ -87,19 +109,55 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
   const saying = c.kind === 'saying';
   const quran = c.kind === 'quran' || c.kind === 'quran_variant';
   const warning = c.kind === 'weak' || c.kind === 'review' || c.kind === 'not_found' || c.kind === 'quran_missing' || c.misattributed;
-  // خلفية خزامى فاتحة مع إطار ذهبي
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, '#fbf9ff');
-  g.addColorStop(1, '#ece5fb');
-  ctx.fillStyle = g;
+  // إطار بنفسجي بزخرفة ذهبية مثل الموقع، ثم لوح فاتح للمحتوى
+  ctx.fillStyle = '#2e2452';
   ctx.fillRect(0, 0, W, H);
+  const pat = await goldPattern(ctx);
+  if (pat) {
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = pat;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+  ctx.strokeStyle = '#d4af5a';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(22, 22, W - 44, H - 44);
+  const P = 64;
+  const g = ctx.createLinearGradient(0, P, 0, H - P);
+  g.addColorStop(0, '#fdfbff');
+  g.addColorStop(1, '#efe8fc');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.roundRect(P, P, W - 2 * P, H - 2 * P, 30);
+  ctx.fill();
+  // زخرفة ذهبية خفيفة داخل اللوح، كما في صندوق الحكم في الموقع
+  const soft = await goldPattern(ctx, '--pattern-gold-line', 130);
+  if (soft) {
+    ctx.save();
+    ctx.clip();
+    ctx.globalAlpha = 0.09;
+    ctx.fillStyle = soft;
+    ctx.fillRect(P, P, W - 2 * P, H - 2 * P);
+    ctx.restore();
+    ctx.beginPath();
+    ctx.roundRect(P, P, W - 2 * P, H - 2 * P, 30);
+  }
   ctx.strokeStyle = '#c9a24a';
   ctx.lineWidth = 4;
-  ctx.strokeRect(36, 36, W - 72, H - 72);
-  ctx.strokeStyle = '#dcd2f6';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(52, 52, W - 104, H - 104);
-  for (const [x, y] of [[52, 52], [W - 52, 52], [52, H - 52], [W - 52, H - 52]]) star(ctx, x, y, 30, '#c9a24a');
+  ctx.stroke();
+  ctx.strokeStyle = '#e3d3a8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(P + 12, P + 12, W - 2 * P - 24, H - 2 * P - 24, 22);
+  ctx.stroke();
+  for (const [x, y] of [[P + 6, P + 6], [W - P - 6, P + 6], [P + 6, H - P - 6], [W - P - 6, H - P - 6]]) {
+    ctx.fillStyle = '#2e2452';
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
+    ctx.fill();
+    star(ctx, x, y, 22, '#e2c068');
+  }
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
