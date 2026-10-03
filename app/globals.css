@@ -476,3 +476,8 @@ input.input { width: 100%; min-height: 48px; padding: 0 16px; font: inherit; col
 .quran-ref { text-align: center; color: var(--gold-ink); font-weight: 700; margin: 0 0 10px; }
 .quran-block { border: 2px solid var(--gold-2); background: linear-gradient(180deg, #fffdf6, var(--gold-soft)); }
 .fix-text .quote.quran-quote { font-family: 'Amiri Quran', Amiri, serif; line-height: 2.2; }
+
+/* اسأل بيّنة: فحص الإسناد ومواضع الاستشهاد */
+.ask-cite { margin: 6px 0 0; font-size: 13px; color: var(--muted, #5d5872); }
+.ask-ok { color: #006c35; font-weight: 700; }
+.ask-blocked { background: #fdf6f4; border: 1px solid #ebc4bc; color: #7a2a1f; border-radius: 12px; padding: 10px 14px; }

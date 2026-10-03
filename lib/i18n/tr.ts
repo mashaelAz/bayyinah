@@ -405,4 +405,7 @@ export const tr: Messages = {
   'fix.partWeak': "Bu ifade, {scholar}’nin bütünü hakkında “{grade}” hükmünü verdiği daha uzun bir rivayetin içinde geçiyor. Âlimler başka bir senedle teyit edene kadar Peygamber ﷺ’e nispet ederek paylaşmayın. Kaynaktaki rivayetin tamamı:",
   'ex.4.t': "Hadis diye sunulan âyet",
   'ex.4.n': "Beyyine bunun âyet olduğunu tespit eder ve nispeti düzeltir",
+  'ask.verified': "Yanıt kaynak verileriyle karşılaştırıldı",
+  'ask.cite': "Dayanak",
+  'ask.blocked': "Asistan yanıtını vermedi: taslağı kaynak verilerinde olmayan bir bilgi içeriyordu; doğrulanmamış bir yanıt göstermek yerine engelledik. Yukarıdaki kaynak bağlantısına bakın veya ehline sorun.",
 };

@@ -405,4 +405,7 @@ export const en: Messages = {
   'fix.partWeak': "This phrase appears within a longer narration that {scholar} graded, as a whole, “{grade}”. Do not share it as a saying of the Prophet ﷺ until scholars confirm it through another chain. The full narration in the source:",
   'ex.4.t': "A verse presented as a hadith",
   'ex.4.n': "Bayyinah detects it is a verse and corrects the attribution",
+  'ask.verified': "Answer checked against the source data",
+  'ask.cite': "Cited from",
+  'ask.blocked': "The assistant withheld its answer: its draft mentioned information not found in the source data, so we blocked it rather than show an unverified answer. Check the source link above, or ask a qualified scholar.",
 };

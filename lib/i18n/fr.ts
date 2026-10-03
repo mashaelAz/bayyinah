@@ -405,4 +405,7 @@ export const fr: Messages = {
   'fix.partWeak': "Cette phrase figure dans une narration plus longue que {scholar} a jugée, dans son ensemble, « {grade} ». Ne la partagez pas comme parole du Prophète ﷺ avant que des savants ne la confirment par une autre chaîne. La narration complète dans la source :",
   'ex.4.t': "Un verset présenté comme hadith",
   'ex.4.n': "Bayyinah détecte qu’il s’agit d’un verset et corrige l’attribution",
+  'ask.verified': "Réponse vérifiée par rapport aux données de la source",
+  'ask.cite': "Référence",
+  'ask.blocked': "L’assistant a retenu sa réponse : son brouillon mentionnait une information absente des données de la source ; nous l’avons bloquée plutôt que d’afficher une réponse non vérifiée. Consultez le lien de la source ci-dessus ou un savant qualifié.",
 };

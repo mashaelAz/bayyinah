@@ -36,8 +36,16 @@ function buildContext(r: VerificationResult): string {
     lines.push('أحكام المحدثين على الروايات المطابقة:');
     for (const x of r.otherRulings.slice(0, 8)) lines.push(`- ${x.scholar} (${x.source} ${x.reference}): ${x.grade}`);
   }
-  lines.push(`مصدر البيانات: ${r.provider.id === 'quran' ? 'نص المصحف الشريف المحفوظ في بيّنة' : r.provider.live ? 'الدرر السنية مباشرة' : (r.best?.record.id.startsWith('book-') || r.provider.coverage === 'six_books' ? 'متون الكتب الستة المحفوظة في بيّنة (الصحيحان بلا حكم إضافي لأنهما من الصحيح، والسنن الأربع بحكم الألباني)' : 'نسخة مخزنة من الدرر')}`);
+  lines.push(`مصدر البيانات: ${r.provider.id === 'quran' ? 'نص المصحف الشريف المحفوظ في بيّنة (114 سورة و6236 آية، برواية حفص)' : r.provider.live ? 'الدرر السنية مباشرة' : (r.best?.record.id.startsWith('book-') || r.provider.coverage === 'six_books' ? 'متون الكتب الستة المحفوظة في بيّنة: صحيح البخاري وصحيح مسلم (أحاديثهما صحيحة لأنهما الصحيحان)، وسنن أبي داود وجامع الترمذي وسنن النسائي وسنن ابن ماجه (بحكم الألباني)؛ وعددها 34108 أحاديث، أي أكثر من 34 ألف حديث' : 'نسخة مخزنة من الدرر')}`);
   return lines.join('\n');
+}
+
+/** موضع الاستشهاد الذي بُنيت عليه الإجابة */
+function citation(r: VerificationResult): string {
+  if (r.quran) return `${r.quran.surahName}: ${r.quran.from}${r.quran.to > r.quran.from ? `–${r.quran.to}` : ''}`;
+  const b = r.best?.record;
+  if (b) return [b.source, b.reference ? `رقم ${b.reference}` : '', b.grade ? `${b.scholar}: «${b.grade}»` : ''].filter(Boolean).join('، ');
+  return '';
 }
 
 /** إزالة رموز التنسيق إن ظهرت في الجواب */
@@ -51,7 +59,8 @@ export default function AskBayyinah({ result }: { result: VerificationResult }) 
   const [q, setQ] = useState('');
   const [busy, setBusy] = useState(false);
   const [fail, setFail] = useState(false);
-  const [chat, setChat] = useState<{ q: string; a: string }[]>([]);
+  const [chat, setChat] = useState<{ q: string; a: string; blocked?: boolean }[]>([]);
+  const cite = citation(result);
 
   useEffect(() => {
     fetch('/api/ask', { cache: 'no-store' })
@@ -71,9 +80,21 @@ export default function AskBayyinah({ result }: { result: VerificationResult }) 
       const res = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ question: text, context: buildContext(result), history: chat, lang }),
+        body: JSON.stringify({
+          question: text,
+          context: buildContext(result),
+          history: chat.filter((m) => !m.blocked).map(({ q, a }) => ({ q, a })),
+          lang,
+        }),
       });
       const body = res.ok ? await res.json() : null;
+      if (body?.blocked) {
+        // فشل فحص الإسناد: امتناع بدل إجابة غير موثقة
+        setChat((c) => [...c, { q: text, a: t('ask.blocked'), blocked: true }]);
+        setQ('');
+        setBusy(false);
+        return;
+      }
       if (!body?.answer) throw new Error('no_answer');
       setChat((c) => [...c, { q: text, a: body.answer }]);
       setQ('');
@@ -99,7 +120,18 @@ export default function AskBayyinah({ result }: { result: VerificationResult }) 
       {chat.map((m, i) => (
         <div key={i} className="ask-pair">
           <p className="ask-q">{m.q}</p>
-          <p className="ask-a">{clean(m.a)}</p>
+          <p className={m.blocked ? 'ask-a ask-blocked' : 'ask-a'}>{m.blocked ? m.a : clean(m.a)}</p>
+          {m.blocked ? null : (
+            <p className="ask-cite">
+              <span className="ask-ok">✓ {t('ask.verified')}</span>
+              {cite ? (
+                <span lang="ar">
+                  {' '}
+                  · {t('ask.cite')}: {cite}
+                </span>
+              ) : null}
+            </p>
+          )}
         </div>
       ))}
       {busy ? <p className="fine">{t('ask.thinking')}</p> : null}

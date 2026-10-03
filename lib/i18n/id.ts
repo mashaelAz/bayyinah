@@ -405,4 +405,7 @@ export const id: Messages = {
   'fix.partWeak': "Kalimat ini terdapat dalam riwayat yang lebih panjang yang secara keseluruhan dihukumi {scholar} “{grade}”. Jangan bagikan sebagai sabda Nabi ﷺ sampai ulama mengonfirmasinya melalui jalur lain. Riwayat lengkap di sumber:",
   'ex.4.t': "Ayat yang disebut hadis",
   'ex.4.n': "Bayyinah mendeteksi bahwa ini ayat dan meluruskan penisbatannya",
+  'ask.verified': "Jawaban diperiksa terhadap data sumber",
+  'ask.cite': "Rujukan",
+  'ask.blocked': "Asisten menahan jawabannya: drafnya menyebut informasi yang tidak ada dalam data sumber, jadi kami memblokirnya daripada menampilkan jawaban yang belum terverifikasi. Periksa tautan sumber di atas, atau tanyakan kepada ulama.",
 };

@@ -76,8 +76,14 @@ async function claude(system: string, user: string): Promise<string | null> {
   }
 }
 
-export async function askAssistant(context: string, history: { q: string; a: string }[], question: string, lang: string): Promise<string | null> {
-  const system = buildSystemPrompt(lang);
+export async function askAssistant(
+  context: string,
+  history: { q: string; a: string }[],
+  question: string,
+  lang: string,
+  extraRule = '',
+): Promise<string | null> {
+  const system = buildSystemPrompt(lang) + (extraRule ? `\n- ${extraRule}` : '');
   const prior = history
     .slice(-4)
     .map((h) => `سؤال سابق: ${h.q}\nجواب سابق: ${h.a}`)

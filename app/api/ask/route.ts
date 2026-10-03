@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { askAssistant, isAskEnabled } from '../../../lib/ai/ask.ts';
+import { checkGrounding } from '../../../lib/ai/groundCheck.ts';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -21,7 +22,27 @@ export async function POST(req: Request) {
         .slice(-4)
     : [];
   if (!question || !context) return NextResponse.json({ reason: 'empty' }, { status: 400 });
-  const answer = await askAssistant(context, history, question, lang);
+  // التوليد ثم فحص الإسناد: أي رقم أو كتاب أو محدّث أو سورة أو حكم ليس في بيانات النتيجة يحجب الإجابة
+  let answer = await askAssistant(context, history, question, lang);
   if (!answer) return NextResponse.json({ reason: 'unavailable' }, { status: 502 });
-  return NextResponse.json({ answer });
+  let check = checkGrounding(answer, context, question);
+  if (!check.ok) {
+    // محاولة ثانية واحدة مع تنبيه صريح بما لا يجوز ذكره
+    const retry = await askAssistant(
+      context,
+      history,
+      question,
+      lang,
+      `ذكرتَ في محاولة سابقة ما ليس في البيانات (${check.issues.join('، ')}). لا تذكره، والتزم بالبيانات حرفيًا.`,
+    );
+    if (retry) {
+      const second = checkGrounding(retry, context, question);
+      if (second.ok) {
+        answer = retry;
+        check = second;
+      }
+    }
+  }
+  if (!check.ok) return NextResponse.json({ blocked: true, issues: check.issues });
+  return NextResponse.json({ answer, verified: true });
 }
