@@ -8,12 +8,16 @@ export const metadata: Metadata = {
   title: 'بيّنة | Bayyinah — قبل أن تنشر… تبيّن',
   description:
     'تحقق من الأحاديث والعبارات الدينية المتداولة خلال ثوانٍ، بالاعتماد على الموسوعة الحديثية في الدرر السنية وتقنيات الذكاء الاصطناعي. ست لغات.',
+  manifest: '/manifest.webmanifest',
+  applicationName: 'بيّنة',
+  appleWebApp: { capable: true, title: 'بيّنة', statusBarStyle: 'black-translucent' },
+  icons: { icon: '/favicon.png', apple: '/apple-touch-icon.png' },
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#006c35',
+  themeColor: '#2e2452',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

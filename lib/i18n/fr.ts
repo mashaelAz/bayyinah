@@ -261,9 +261,8 @@ export const fr: Messages = {
   'share.grade': 'Jugement du savant',
   'result.disclaimer': 'Bayyinah est un outil d’aide pour accéder aux sources du hadith. Il ne rend ni fatwa ni jugement religieux indépendant.',
 
-  'standards.title': 'Conforme à la norme scientifique du défi',
-  'standards.lede':
-    'Bayyinah suit le document « Référence, ensemble scientifique et données » adopté par le Défi de l’IA au service du contenu islamique.',
+  'standards.title': 'Engagés envers la rigueur scientifique',
+  'standards.lede': 'Bayyinah repose sur des règles strictes : aucun jugement sans source, rien n’est attribué au Prophète ﷺ sans preuve, et l’IA lit, cherche et compare sans jamais juger.',
   'std.1.t': 'Fiabilité et attribution',
   'std.1.b': 'Chaque jugement est attribué à son savant, son ouvrage et son numéro, avec le lien source. Aucun hadith sans source ni jugement approuvé.',
   'std.2.t': 'Contre les hallucinations',
@@ -283,10 +282,10 @@ export const fr: Messages = {
     'Bayyinah montre la source et le jugement du savant avec un lien, et distingue par cinq statuts clairs ce que les sources confirment, ce dont la formulation diffère, et ce qui requiert vérification ou orientation.',
 
   'sources.title': 'Nos sources',
-  'sources.lede': 'Nous appliquons « la source avant la réponse ». Nos sources sont celles approuvées dans l’ensemble scientifique du défi.',
+  'sources.lede': 'Nous appliquons « la source avant la réponse », en nous appuyant sur les références du hadith les plus fiables.',
   'src.dorar.t': 'Encyclopédie du Hadith, Dorar.net',
   'src.dorar.r': 'Source principale, connectée en direct',
-  'src.dorar.b': 'La source approuvée pour le hadith. Nous citons le texte, le rapporteur, le savant, l’ouvrage, le numéro et le jugement tels quels.',
+  'src.dorar.b': 'La référence principale de Bayyinah pour le hadith. Nous citons le texte, le rapporteur, le savant, l’ouvrage, le numéro et le jugement tels quels.',
   'src.shamela.t': 'Al-Maktaba Al-Shamela',
   'src.shamela.r': 'Pour la relecture humaine',
   'src.shamela.b': 'Éditions approuvées des livres de la Sunnah, consultées par un relecteur spécialisé au besoin. Non connectée automatiquement dans cette version.',

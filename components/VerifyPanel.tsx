@@ -1,5 +1,7 @@
 'use client';
 
+import { Star } from './Ornament';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ExtractionResult, VerificationResult } from '../lib/types.ts';
 import { aiOcr, aiOcrAvailable, ocrService } from '../lib/ocr/ocrService.ts';
@@ -235,16 +237,25 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
 
   return (
     <div className="verify">
-      <div className="ai-note">
-        <IconSpark />
-        {t('verify.ai')}
+      <div className="app-bar">
+        <span className="app-mark" aria-hidden="true">
+          <Star color="#e2c068" />
+        </span>
+        <b className="app-name">{t('brand')}</b>
+        <span className="app-live" aria-hidden="true" />
+        <div className="ai-note">
+          <IconSpark />
+          {t('verify.ai')}
+        </div>
       </div>
 
       <div className="tabs" role="tablist" aria-label={t('tabs.aria')}>
         <button role="tab" className="tab" aria-selected={tab === 'image'} onClick={() => setTab('image')} disabled={busy}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.8" /></svg>
           {t('tabs.image')}
         </button>
         <button role="tab" className="tab" aria-selected={tab === 'text'} onClick={() => setTab('text')} disabled={busy}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 11h14M5 16h9" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
           {t('tabs.text')}
         </button>
       </div>

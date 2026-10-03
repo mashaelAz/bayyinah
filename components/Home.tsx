@@ -223,13 +223,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div className="track">
-            <div>
-              <div className="label">{t('track.label')}</div>
-              <blockquote>«{t('track.quote')}»</blockquote>
-            </div>
-            <p>{t('track.answer')}</p>
-          </div>
         </div>
       </section>
 

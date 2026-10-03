@@ -261,9 +261,8 @@ export const en: Messages = {
   'share.grade': 'Scholar’s ruling',
   'result.disclaimer': 'Bayyinah is a technical aid for reaching Hadith sources. It does not issue fatwas or independent religious rulings.',
 
-  'standards.title': 'Built to the challenge’s scholarly standard',
-  'standards.lede':
-    'Bayyinah follows the “Reference, Scholarly Package and Data” adopted by the AI Challenge in Serving Islamic Content.',
+  'standards.title': 'Committed to scholarly standards',
+  'standards.lede': 'Bayyinah is built on strict scholarly rules: no ruling without a source, nothing attributed to the Prophet ﷺ without documentation, and AI that reads, searches and matches but never grades.',
   'std.1.t': 'Reliability and attribution',
   'std.1.b': 'Every ruling shown is attributed to its scholar, book and number, with a source link. No Hadith is cited without an approved source and ruling.',
   'std.2.t': 'Resisting hallucination',
@@ -283,11 +282,10 @@ export const en: Messages = {
     'Bayyinah shows the source and the scholar’s ruling with a link, and separates, through five clear statuses, what the sources support, what has altered wording, and what needs further checking or referral.',
 
   'sources.title': 'Our sources',
-  'sources.lede': 'We follow “source before answer”. Our sources are the ones approved in the challenge’s scholarly package.',
+  'sources.lede': 'We follow “source before answer”, relying on the most trusted hadith references.',
   'src.dorar.t': 'Hadith Encyclopedia, Dorar.net',
   'src.dorar.r': 'Primary source, connected live',
-  'src.dorar.b':
-    'The approved Hadith source in the scholarly package. We quote the text, narrator, scholar, book, number and ruling exactly as given.',
+  'src.dorar.b': 'Bayyinah’s primary hadith reference. We quote the hadith text, narrator, scholar, book, number and grading exactly as they appear.',
   'src.shamela.t': 'Al-Maktaba Al-Shamela',
   'src.shamela.r': 'For human review',
   'src.shamela.b': 'Approved editions of the books of Sunnah, consulted by a specialist reviewer when needed. Not connected automatically in this version.',

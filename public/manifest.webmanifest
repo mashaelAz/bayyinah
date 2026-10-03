@@ -1,0 +1,17 @@
+{
+  "name": "بيّنة — تحقّق قبل أن تنشر",
+  "short_name": "بيّنة",
+  "description": "تحقق من الأحاديث والعبارات الدينية المتداولة قبل نشرها، بالرجوع إلى المصادر الحديثية الموثوقة.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fcfbff",
+  "theme_color": "#2e2452",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

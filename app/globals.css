@@ -415,3 +415,45 @@ details.raw summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 .ask-a { margin: 6px 0 0; padding: 12px 14px; background: #fff; border: 1px solid var(--lav-line); border-radius: 14px; white-space: pre-line; }
 .ask-form { display: flex; gap: 8px; margin-top: 10px; }
 .ask-form .input { flex: 1; min-height: 0; }
+
+/* ——— واجهة التحقق بطابع التطبيقات ——— */
+.verify { padding: 0 0 26px; overflow: hidden; border: 1px solid #e6dcf7; border-radius: 28px; box-shadow: 0 1px 0 #fff inset, 0 30px 70px -40px rgba(46,36,82,.45), 0 8px 24px -16px rgba(46,36,82,.25); }
+.verify > *:not(.app-bar) { margin-inline: 26px; }
+.app-bar { display: flex; align-items: center; gap: 10px; padding: 14px 20px; margin-bottom: 22px; background: linear-gradient(135deg, var(--plum) 0%, var(--lav-700) 100%); color: #fff; position: relative; }
+.app-bar::after { content: ''; position: absolute; inset-inline: 0; bottom: 0; height: 2px; background: var(--gold-grad); }
+.app-mark { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.12); display: grid; place-items: center; box-shadow: inset 0 0 0 1px rgba(226,192,104,.6); }
+.app-mark svg { width: 22px; height: 22px; }
+.app-name { font-family: var(--display); font-size: 20px; letter-spacing: .01em; }
+.app-live { width: 8px; height: 8px; border-radius: 50%; background: #5ee29a; box-shadow: 0 0 0 4px rgba(94,226,154,.18); }
+.app-bar .ai-note { margin: 0 auto 0 0; background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.2); color: #f1ecff; }
+[dir='ltr'] .app-bar .ai-note { margin: 0 0 0 auto; }
+.ai-note svg { width: 16px; height: 16px; flex: none; }
+@media (max-width: 600px) { .app-bar .ai-note { display: none; } .verify > *:not(.app-bar) { margin-inline: 16px; } }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; width: auto; padding: 5px; gap: 4px; border-radius: 18px; background: #f3effb; border: 0; box-shadow: inset 0 1px 3px rgba(46,36,82,.08); }
+.tab { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 14px; font-weight: 600; font-size: 16px; transition: background .2s, color .2s, box-shadow .2s; }
+.tab svg { width: 20px; height: 20px; }
+.tab[aria-selected='true'] { background: #fff; color: var(--lav-700); box-shadow: 0 4px 14px -6px rgba(46,36,82,.35), 0 0 0 1px #e6dcf7; }
+
+textarea.input, input.input { border: 1.5px solid #e6dcf7; border-radius: 18px; background: #fcfbff; box-shadow: inset 0 1px 2px rgba(46,36,82,.05); transition: border-color .15s, box-shadow .15s, background .15s; }
+textarea.input:focus, input.input:focus { border-color: var(--lav-600); background: #fff; box-shadow: 0 0 0 4px rgba(110,88,184,.14); outline: none; }
+input.input { width: 100%; min-height: 48px; padding: 0 16px; font: inherit; color: var(--ink); }
+
+.btn-primary { background: linear-gradient(135deg, var(--lav-600), var(--plum)); box-shadow: 0 10px 22px -12px rgba(46,36,82,.8); }
+.btn-primary:hover { background: linear-gradient(135deg, var(--lav-700), var(--plum)); }
+.btn-primary:disabled { background: #c9c0e6; box-shadow: none; }
+.btn:active:not(:disabled) { transform: scale(.98); }
+
+.dropzone { border-radius: 22px; border-width: 2px; background-color: #f8f5fe; padding: 40px 16px; }
+.dropzone:hover { border-color: var(--lav-600); background-color: #f3eefd; }
+
+.example { border-radius: 18px; background: #fff; border: 1px solid #ece5f8; border-top: 0; box-shadow: 0 6px 18px -14px rgba(46,36,82,.5); transition: transform .15s, box-shadow .15s; position: relative; overflow: hidden; }
+.example::before { content: ''; position: absolute; inset-inline: 0; top: 0; height: 3px; background: var(--gold-grad); }
+.example:hover { transform: translateY(-2px); box-shadow: 0 12px 26px -14px rgba(46,36,82,.55); }
+@media (max-width: 760px) {
+  .examples { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+  .example { flex: 0 0 78%; scroll-snap-align: start; }
+}
+
+/* بطاقات النتيجة */
+.result .block, .fix, .ask, .bridge { border-radius: 22px; box-shadow: 0 8px 26px -20px rgba(46,36,82,.45); }

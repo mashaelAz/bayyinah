@@ -261,9 +261,8 @@ export const tr: Messages = {
   'share.grade': 'Muhaddisin hükmü',
   'result.disclaimer': 'Bayyinah, hadis kaynaklarına ulaşmak için yardımcı bir teknik araçtır; fetva veya bağımsız dinî hüküm vermez.',
 
-  'standards.title': 'Yarışmanın ilmî standardına bağlıyız',
-  'standards.lede':
-    'Bayyinah, İslami İçeriğe Hizmette Yapay Zekâ Yarışması’nın benimsediği “Referans, İlmî Paket ve Veriler” belgesine göre tasarlandı.',
+  'standards.title': 'İlmî standarda bağlıyız',
+  'standards.lede': 'Beyyine katı ilmî kurallara dayanır: kaynaksız hüküm yok, belgelenmeden Peygamber ﷺ’e nispet yok; yapay zekâ okur, arar ve eşleştirir ama asla hüküm vermez.',
   'std.1.t': 'Güvenilirlik ve isnat',
   'std.1.b': 'Gösterilen her hüküm muhaddisine, kitabına ve numarasına nispet edilir; kaynak bağlantısıyla. Onaylı kaynak ve hüküm olmadan hadis nispet edilmez.',
   'std.2.t': 'Halüsinasyona direnç',
@@ -283,10 +282,10 @@ export const tr: Messages = {
     'Bayyinah kaynağı ve muhaddisin hükmünü bağlantısıyla gösterir; beş açık durumla kaynakların desteklediğini, lafzı farklı olanı ve daha fazla inceleme veya yönlendirme gerektireni ayırır.',
 
   'sources.title': 'Kaynaklarımız',
-  'sources.lede': '“Cevaptan önce kaynak” ilkesine bağlıyız; kaynaklarımız yarışmanın ilmî paketinde onaylı olanlardır.',
+  'sources.lede': '“Cevaptan önce kaynak” ilkesini uygular, en güvenilir hadis kaynaklarına dayanırız.',
   'src.dorar.t': 'Hadis Ansiklopedisi, Dorar.net',
   'src.dorar.r': 'Ana kaynak, canlı bağlantılı',
-  'src.dorar.b': 'İlmî pakette hadis için onaylanan kaynak. Metni, râviyi, muhaddisi, kitabı, numarayı ve hükmü olduğu gibi aktarırız.',
+  'src.dorar.b': 'Beyyine’nin temel hadis kaynağı. Hadis metnini, raviyi, muhaddisi, kitabı, numarayı ve hükmü olduğu gibi aktarırız.',
   'src.shamela.t': 'el-Mektebetü’ş-Şâmile',
   'src.shamela.r': 'İnsan incelemesi için',
   'src.shamela.b': 'Sünnet kitaplarının onaylı baskıları; gerektiğinde uzman inceleyici başvurur. Bu sürümde otomatik bağlı değil.',

@@ -23,7 +23,7 @@ export default function Footer() {
         </div>
         <p className="disclaimer">{t('footer.disclaimer')}</p>
         <p className="disclaimer" style={{ marginTop: 6 }}>
-          {t('footer.hackathon')} {t('sources.independent')}
+          {t('sources.independent')}
         </p>
       </div>
     </footer>

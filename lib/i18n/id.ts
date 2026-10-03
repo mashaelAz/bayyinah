@@ -261,9 +261,8 @@ export const id: Messages = {
   'share.grade': 'Hukum ahli hadis',
   'result.disclaimer': 'Bayyinah adalah alat bantu teknis untuk menjangkau sumber hadis. Bayyinah tidak mengeluarkan fatwa atau hukum syariat sendiri.',
 
-  'standards.title': 'Patuh pada standar ilmiah kompetisi',
-  'standards.lede':
-    'Bayyinah dirancang mengikuti “Rujukan, Paket Ilmiah, dan Data” yang ditetapkan Tantangan AI dalam Melayani Konten Islam.',
+  'standards.title': 'Berkomitmen pada standar ilmiah',
+  'standards.lede': 'Bayyinah dibangun di atas kaidah ilmiah yang ketat: tidak ada hukum tanpa sumber, tidak ada penisbatan kepada Nabi ﷺ tanpa dokumentasi, dan AI membaca, mencari, dan mencocokkan tetapi tidak pernah menilai.',
   'std.1.t': 'Keterpercayaan dan penyandaran',
   'std.1.b': 'Setiap hukum disandarkan kepada ahli hadisnya, kitab, dan nomornya, dengan tautan sumber. Tidak ada hadis tanpa sumber dan hukum yang disetujui.',
   'std.2.t': 'Melawan halusinasi',
@@ -283,10 +282,10 @@ export const id: Messages = {
     'Bayyinah menampilkan sumber dan hukum ahli hadis beserta tautannya, dan membedakan melalui lima status yang jelas antara yang didukung sumber, yang lafaznya berbeda, dan yang perlu pemeriksaan lanjut atau rujukan.',
 
   'sources.title': 'Sumber kami',
-  'sources.lede': 'Kami berpegang pada “sumber sebelum jawaban”, dan sumber kami adalah yang disetujui dalam paket ilmiah kompetisi.',
+  'sources.lede': 'Kami berpegang pada “sumber sebelum jawaban”, dengan rujukan hadis yang paling tepercaya.',
   'src.dorar.t': 'Ensiklopedia Hadis, Dorar.net',
   'src.dorar.r': 'Sumber utama, terhubung langsung',
-  'src.dorar.b': 'Sumber hadis yang disetujui dalam paket ilmiah. Darinya kami kutip teks, perawi, ahli hadis, kitab, nomor, dan hukum apa adanya.',
+  'src.dorar.b': 'Rujukan hadis utama Bayyinah. Kami mengutip teks hadis, perawi, ahli hadis, kitab, nomor, dan hukumnya apa adanya.',
   'src.shamela.t': 'Al-Maktabah Asy-Syamilah',
   'src.shamela.r': 'Untuk tinjauan manusia',
   'src.shamela.b': 'Edisi kitab-kitab Sunnah yang disetujui, dirujuk oleh peninjau ahli bila perlu. Belum terhubung otomatis dalam versi ini.',
