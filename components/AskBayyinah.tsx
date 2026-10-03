@@ -19,11 +19,24 @@ function buildContext(r: VerificationResult): string {
     lines.push(`حكم المحدّث كما ورد: ${b.grade || 'لم يرد حكم'}`);
     lines.push(`نسبة التشابه بين نص المستخدم ونص المصدر: ${Math.round(r.best.similarity * 100)}%`);
   }
+  if (r.quran !== undefined) {
+    if (r.quran) {
+      const q = r.quran;
+      lines.push(`نتيجة البحث في المصحف الشريف: ${q.exact ? 'النص من القرآن الكريم' : 'النص قريب من آية لكن لفظه مختلف عن المصحف'}، سورة ${q.surahName}، الآية ${q.from}${q.to > q.from ? `–${q.to}` : ''}.`);
+      lines.push(`نص الآية في المصحف: ﴿${q.text}﴾`);
+      if (r.quranMisattributed) lines.push('نُسب النص في البطاقة إلى النبي ﷺ على أنه حديث، وهو آية قرآنية.');
+    } else {
+      lines.push('نتيجة البحث في المصحف الشريف: بُحث في القرآن الكريم كاملًا (6236 آية) فلم يوجد هذا النص، مع أنه قُدّم على أنه آية.');
+    }
+  }
+  if (!r.best && r.provider.coverage === 'six_books') {
+    lines.push('نتيجة البحث: بُحث في متون الكتب الستة كاملة (البخاري ومسلم وأبو داود والترمذي والنسائي وابن ماجه) فلم يوجد هذا النص بهذا اللفظ. لا يعني ذلك وحده أنه موضوع، وقد يكون في كتب أخرى.');
+  }
   if (r.otherRulings.length > 1) {
     lines.push('أحكام المحدثين على الروايات المطابقة:');
     for (const x of r.otherRulings.slice(0, 8)) lines.push(`- ${x.scholar} (${x.source} ${x.reference}): ${x.grade}`);
   }
-  lines.push(`مصدر البيانات: ${r.provider.live ? 'الدرر السنية مباشرة' : 'نصوص الصحيحين أو نسخة مخزنة من الدرر'}`);
+  lines.push(`مصدر البيانات: ${r.provider.id === 'quran' ? 'نص المصحف الشريف المحفوظ في بيّنة' : r.provider.live ? 'الدرر السنية مباشرة' : (r.best?.record.id.startsWith('book-') || r.provider.coverage === 'six_books' ? 'متون الكتب الستة المحفوظة في بيّنة (الصحيحان بلا حكم إضافي لأنهما من الصحيح، والسنن الأربع بحكم الألباني)' : 'نسخة مخزنة من الدرر')}`);
   return lines.join('\n');
 }
 

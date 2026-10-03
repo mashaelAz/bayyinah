@@ -113,11 +113,32 @@ export type EvidenceCode =
   | 'no_grade'
   | 'unavailable'
   | 'nothing_to_search'
-  | 'not_hadith';
+  | 'not_hadith'
+  | 'six_books'
+  | 'quran_found'
+  | 'quran_missing';
 
 export interface EvidenceStep {
   code: EvidenceCode;
   params?: Record<string, string | number | boolean>;
+}
+
+/** آية أو آيات من المصحف الشريف طابقت النص */
+export interface QuranMatch {
+  surah: number;
+  surahName: string;
+  from: number;
+  to: number;
+  /** نص الآية مشكولًا كما في المصحف */
+  text: string;
+  /** الرسم الإملائي، للمقارنة فقط */
+  plain: string;
+  /** لغير المطابق: أقرب مقطع من الآية بالرسم الإملائي، لبيان الفرق */
+  excerpt?: string;
+  /** عبارة متصلة مطابقة من المصحف */
+  exact: boolean;
+  similarity: number;
+  url: string;
 }
 
 export interface ScholarRuling {
@@ -138,7 +159,14 @@ export interface VerificationResult {
   otherRulings: ScholarRuling[];
   rulingsDiffer: boolean;
   candidatesCount: number;
-  provider: { id: string; live: boolean; fallbackUsed: boolean };
+  /** إذا كان النص آية (أو قريبًا منها) أو ادُّعي أنه آية: نتيجة البحث في المصحف */
+  quran?: QuranMatch | null;
+  /** النص آية قرآنية لكنه نُسب إلى النبي ﷺ على أنه حديث */
+  quranMisattributed?: boolean;
+  /** النص جزء قصير من رواية أطول حُكم عليها كاملةً بالضعف */
+  partOfLonger?: boolean;
+  /** coverage: نطاق البحث حين يكون مجموعة كتب كاملة معروفة (الكتب الستة) */
+  provider: { id: string; live: boolean; fallbackUsed: boolean; coverage?: 'six_books' };
   evidence: EvidenceStep[];
   searchUrl: string;
   checkedAt: string;

@@ -30,7 +30,11 @@ export function saveToHistory(r: VerificationResult): void {
       id: `${Date.now()}`,
       text: r.extraction.searchText.slice(0, 220),
       status: r.status,
-      source: r.best ? `${r.best.record.scholar}، ${r.best.record.source}` : null,
+      source: r.quran
+        ? `القرآن الكريم، ${r.quran.surahName}: ${r.quran.from}${r.quran.to > r.quran.from ? `–${r.quran.to}` : ''}`
+        : r.best
+          ? `${r.best.record.scholar}، ${r.best.record.source}`
+          : null,
       grade: r.best?.record.grade || null,
       differencePercent: r.diff?.differencePercent ?? null,
       at: r.checkedAt,

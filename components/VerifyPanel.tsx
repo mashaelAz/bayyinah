@@ -7,6 +7,7 @@ import type { ExtractionResult, VerificationResult } from '../lib/types.ts';
 import { aiOcr, aiOcrAvailable, ocrService } from '../lib/ocr/ocrService.ts';
 import { saveToHistory } from '../lib/history.ts';
 import { verifyText } from '../lib/verify.ts';
+import { checkQuran } from '../lib/quranClient.ts';
 import { browserProviders } from '../lib/providers/index.ts';
 import { ManualDorarProvider } from '../lib/providers/manual.ts';
 import type { SourceRecord } from '../lib/types.ts';
@@ -28,6 +29,7 @@ export const EXAMPLES = [
     text: 'قال رسول الله ﷺ: «إنما الأعمال بالنية، وإنما لكل إنسان ما نوى، فمن صدقت نيته بلغ مراده»\nانشر تؤجر\nلا تجعلها تقف عندك',
   },
   { key: 3 as const, text: 'من جد وجد ومن زرع حصد' },
+  { key: 4 as const, text: 'قال رسول الله ﷺ: وما خلقت الجن والإنس إلا ليعبدون' },
 ];
 
 /** المساعد اللغوي الاختياري عبر خادم بيّنة؛ إن لم يكن مفعّلًا يكمل التحقق بالقواعد */
@@ -135,7 +137,7 @@ export default function VerifyPanel({ autoText }: { autoText?: string }) {
       try {
         const r = await verifyText(
           { text: trimmed.slice(0, 2000), extractedText: opts.extractedText, fromImage: opts.fromImage },
-          { providers: browserProviders(demoRecords), assist: assistViaServer },
+          { providers: browserProviders(demoRecords), assist: assistViaServer, quran: checkQuran },
         );
         setResult(r);
         saveToHistory(r);

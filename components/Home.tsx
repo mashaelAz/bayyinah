@@ -237,9 +237,10 @@ export default function Home() {
           <div className="sources">
             {[
               { id: 'dorar', url: 'https://dorar.net/hadith', primary: true },
+              { id: 'books', url: 'https://sunnah.com', primary: true },
+              { id: 'quran', url: 'https://quran.com', primary: true },
               { id: 'shamela', url: 'https://shamela.ws' },
               { id: 'jamhara', url: 'https://islamic-content.com/dictionary' },
-              { id: 'quran', url: 'https://quranpedia.net' },
             ].map((s) => (
               <div key={s.id} className={`source${s.primary ? ' primary' : ''}`}>
                 <span className="source-role">{t(k(`src.${s.id}.r`))}</span>

@@ -16,6 +16,9 @@ export type CorrectionKind =
   | 'review' // تعارض أو مطابقة جزئية: لا يُنشر قبل سؤال المختص
   | 'not_found' // لم يُعثر عليه: لا يُنسب للنبي ﷺ
   | 'saying' // قول عالم: يُنسب لقائله ويُراجع مرجعه
+  | 'quran' // آية: تُنشر بلفظ المصحف مع موضعها
+  | 'quran_variant' // قريب من آية بلفظ مختلف: تُنشر بلفظ المصحف
+  | 'quran_missing' // ادُّعي أنه آية ولم يوجد في المصحف
   | 'none'; // تعذر المصدر
 
 export interface Correction {
@@ -36,6 +39,12 @@ export interface Correction {
   /** لقول العالم: القائل والمرجع المكتوب على البطاقة */
   speaker: string | null;
   citedRef: string | null;
+  /** للآية: موضعها، مثل «الحجرات: 6» */
+  quranRef: string | null;
+  /** آية نُسبت إلى النبي ﷺ على أنها حديث */
+  misattributed: boolean;
+  /** العبارة جزء من رواية أطول ضُعّفت كاملة */
+  partOfLonger: boolean;
 }
 
 export interface CardRuling {
@@ -60,7 +69,25 @@ export function buildCorrection(r: VerificationResult): Correction {
     differ: false,
     speaker: null,
     citedRef: null,
+    quranRef: null,
+    misattributed: false,
+    partOfLonger: Boolean(r.partOfLonger),
   };
+
+  if (r.quran !== undefined) {
+    const q = r.quran;
+    if (!q) return { ...base, kind: 'quran_missing' };
+    const ayah = q.from === q.to ? `${q.from}` : `${q.from}–${q.to}`;
+    return {
+      ...base,
+      kind: q.exact ? 'quran' : 'quran_variant',
+      text: q.text,
+      source: 'القرآن الكريم',
+      sourceUrl: q.url,
+      quranRef: `${q.surahName}: ${ayah}`,
+      misattributed: Boolean(r.quranMisattributed),
+    };
+  }
 
   if (r.status === 'source_unavailable') return base;
   if (r.status === 'not_found' && r.extraction.contentType === 'saying') {
@@ -118,6 +145,17 @@ export function correctionShareText(
   labels: { grade: string; source: string; footer: string; warning: string },
 ): string {
   const lines: string[] = [];
+  if (c.kind === 'quran' || c.kind === 'quran_variant') {
+    if (c.misattributed) lines.push(labels.warning);
+    lines.push(`قال الله تعالى: ﴿${c.text}﴾ [${c.quranRef}]`);
+    lines.push(labels.footer);
+    return lines.join('\n');
+  }
+  if (c.kind === 'quran_missing') {
+    lines.push(labels.warning);
+    lines.push(labels.footer);
+    return lines.join('\n');
+  }
   if (c.kind === 'saying') {
     lines.push(labels.warning);
     if (c.text) lines.push(`${c.speaker ? `قال ${c.speaker}: ` : ''}«${c.text}»`);

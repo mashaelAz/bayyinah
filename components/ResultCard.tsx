@@ -3,6 +3,7 @@
 import type { SourceRecord, VerificationResult, ResultStatus } from '../lib/types.ts';
 import { gradeTone } from '../lib/grades.ts';
 import { matchableSourceText } from '../lib/display.ts';
+import { quranQueryText } from '../lib/arabic/quranText.ts';
 import { gradeGloss, useI18n } from '../lib/i18n/index.tsx';
 import type { MessageKey } from '../lib/i18n/ar.ts';
 import DiffView from './DiffView';
@@ -28,6 +29,10 @@ const TYPE_NOTE: Partial<Record<VerificationResult['extraction']['contentType'],
   saying: 'type.saying',
 };
 
+function tokenCount(s: string): number {
+  return s.split(/\s+/).filter(Boolean).length;
+}
+
 export default function ResultCard({ result, onRetry, onEdit, onManual }: Props) {
   const { t, lang } = useI18n();
   const { status, best, extraction, diff } = result;
@@ -37,10 +42,27 @@ export default function ResultCard({ result, onRetry, onEdit, onManual }: Props)
   const pct = best ? Math.round(best.similarity * 100) : 0;
   const showOriginal = extraction.searchText.trim() !== extraction.originalText.trim();
   const saying = extraction.contentType === 'saying' && status === 'not_found';
-  const typeKey = saying ? undefined : TYPE_NOTE[extraction.contentType];
+  const q = result.quran;
+  const isQuran = q !== undefined;
+  const ayah = q ? (q.from === q.to ? `${q.from}` : `${q.from}–${q.to}`) : '';
+  const typeKey = saying || isQuran ? undefined : TYPE_NOTE[extraction.contentType];
   const cached = !result.provider.live;
+  const fromBooks = Boolean(best?.record.id.startsWith('book-'));
+  const sixBooks = result.provider.coverage === 'six_books';
+
+  function quranLabel(): string {
+    if (!q) return t('quran.status.missing');
+    if (!q.exact) return t('quran.status.variant');
+    return result.quranMisattributed ? t('quran.status.mis') : t('quran.status.ok');
+  }
 
   function explanation(s: ResultStatus): string {
+    if (isQuran) {
+      if (!q) return t('quran.exp.missing');
+      const p = { surah: q.surahName, ayah };
+      if (!q.exact) return t('quran.exp.variant', p);
+      return result.quranMisattributed ? t('quran.exp.mis', p) : t('quran.exp.ok', p);
+    }
     switch (s) {
       case 'verified_match': {
         const head = best?.isPartOfSource ? t('exp.verifiedPart') : t('exp.verifiedFull');
@@ -53,25 +75,28 @@ export default function ResultCard({ result, onRetry, onEdit, onManual }: Props)
       case 'wording_variant':
         return t('exp.variant');
       case 'needs_review':
+        if (result.partOfLonger && best) {
+          return t('exp.partWeak', { scholar: best.record.scholar, grade: grade ?? '' });
+        }
         return result.rulingsDiffer ? t('exp.reviewConflict') : t('exp.reviewPartial');
       case 'not_found':
         if (saying) {
           return t('exp.saying', { who: extraction.speaker || t('exp.sayingSomeone') });
         }
-        return t('exp.notFound');
+        return sixBooks ? t('exp.notFoundSix') : t('exp.notFound');
       case 'source_unavailable':
         return t('exp.unavailable');
     }
   }
 
-  const needsHelp = !saying && (status === 'needs_review' || status === 'not_found' || status === 'source_unavailable');
+  const needsHelp = !saying && !isQuran && (status === 'needs_review' || status === 'not_found' || status === 'source_unavailable');
 
   return (
     <article className="result" aria-live="polite" aria-labelledby="result-status">
       <div className="result-head">
         <div className="status-row">
-          <span id="result-status" className={`status status-${status}`}>
-            {saying ? t('status.saying') : t(`status.${status}`)}
+          <span id="result-status" className={`status status-${isQuran && result.quranMisattributed ? 'wording_variant' : status}`}>
+            {isQuran ? quranLabel() : saying ? t('status.saying') : t(`status.${status}`)}
           </span>
           {grade ? (
             <span className={`grade-chip chip-${tone}`} lang="ar">
@@ -81,23 +106,56 @@ export default function ResultCard({ result, onRetry, onEdit, onManual }: Props)
         </div>
         {best ? (
           <a className="source-badge" href={best.record.source_url} target="_blank" rel="noopener noreferrer">
-            {cached ? t('badge.cached') : t('badge.live')}
+            {fromBooks
+              ? t('badge.books', { source: best.record.source, ref: best.record.reference })
+              : cached
+                ? t('badge.cached')
+                : t('badge.live')}
           </a>
         ) : null}
       </div>
 
       <p className="explain">{explanation(status)}</p>
 
-      {onManual && (status === 'source_unavailable' || (result.provider.fallbackUsed && !best)) ? (
+      {onManual && status === 'source_unavailable' ? (
         <DorarBridge text={extraction.searchText} onRecords={onManual} />
+      ) : null}
+      {onManual && status !== 'source_unavailable' && !saying && result.provider.fallbackUsed && !best ? (
+        <details className="bridge-optional">
+          <summary>{t('bridge.optional')}</summary>
+          <DorarBridge text={extraction.searchText} onRecords={onManual} />
+        </details>
       ) : null}
 
       <CorrectionCard result={result} />
 
+      {q ? (
+        <section className="block quran-block" aria-labelledby="quran-title">
+          <h3 id="quran-title">{t('quran.title')}</h3>
+          <p className="quran-text" lang="ar">
+            ﴿{q.text}﴾
+          </p>
+          <p className="quran-ref" lang="ar">
+            [{q.surahName}: {ayah}]
+          </p>
+          {q.exact && tokenCount(q.plain) > tokenCount(quranQueryText(extraction.originalText)) + 1 ? (
+            <p className="fine" style={{ margin: '0 0 8px' }}>
+              {t('quran.partOf')}
+            </p>
+          ) : null}
+          <div className="actions">
+            <a className="btn btn-ghost btn-small" href={q.url} target="_blank" rel="noopener noreferrer">
+              {t('quran.open')}
+            </a>
+          </div>
+        </section>
+      ) : null}
+      {isQuran && diff && (diff.addedCount > 0 || diff.removedCount > 0) ? <DiffView diff={diff} /> : null}
+
       <AskBayyinah result={result} />
 
       {typeKey ? <div className="alert alert-info">{t(typeKey)}</div> : null}
-      {result.provider.fallbackUsed ? <div className="alert alert-info">{t('fallback.note')}</div> : null}
+      {result.provider.fallbackUsed && fromBooks ? <div className="alert alert-info">{t('fallback.note')}</div> : null}
 
       <div className={best ? 'compare' : undefined}>
       <section className="block" aria-labelledby="checked-title">

@@ -26,7 +26,11 @@ export default function ShareBox({ result }: { result: VerificationResult }) {
   const grade = result.best?.record.grade;
   const shareText = [
     result.extraction.searchText.slice(0, 120),
-    result.best ? `${t('share.source')}: ${result.best.record.scholar}، ${result.best.record.source}` : null,
+    result.quran
+      ? `${t('share.source')}: ${result.quran.surahName} ${result.quran.from}${result.quran.to > result.quran.from ? `–${result.quran.to}` : ''}`
+      : result.best
+        ? `${t('share.source')}: ${result.best.record.scholar}، ${result.best.record.source}`
+        : null,
     grade ? `${t('share.grade')}: ${grade}` : null,
     t('share.via'),
   ]

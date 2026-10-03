@@ -201,7 +201,7 @@ textarea.input::placeholder { font-family: var(--sans); font-size: 16px; }
 .field-label { display: block; font-weight: 600; margin-bottom: 8px; }
 .field-hint { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
-.examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+.examples { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
 @media (max-width: 760px) { .examples { grid-template-columns: 1fr; } }
 .example { text-align: start; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; font: inherit; cursor: pointer; color: var(--ink); border-top: 3px solid var(--lav); }
 .example:hover { border-color: var(--lav-mid); }
@@ -457,3 +457,22 @@ input.input { width: 100%; min-height: 48px; padding: 0 16px; font: inherit; col
 
 /* بطاقات النتيجة */
 .result .block, .fix, .ask, .bridge { border-radius: 22px; box-shadow: 0 8px 26px -20px rgba(46,36,82,.45); }
+
+/* جسر الدرر الاختياري بعد البحث في الكتب الستة */
+.bridge-optional { margin: 14px 0; }
+.bridge-optional > summary {
+  cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 999px; border: 1px solid var(--gold-2);
+  background: var(--gold-soft); color: var(--gold-ink); font-weight: 700; font-size: 15px;
+}
+.bridge-optional > summary::-webkit-details-marker { display: none; }
+.bridge-optional > summary::before { content: '＋'; font-weight: 800; }
+.bridge-optional[open] > summary::before { content: '－'; }
+.bridge-optional[open] > summary { margin-bottom: 12px; }
+.sources > .source:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+/* الآيات: خط المصحف */
+.quran-text { font-family: 'Amiri Quran', Amiri, 'Noto Naskh Arabic', serif; font-size: 26px; line-height: 2.3; color: var(--ink, #18211d); margin: 6px 0 4px; text-align: center; }
+.quran-ref { text-align: center; color: var(--gold-ink); font-weight: 700; margin: 0 0 10px; }
+.quran-block { border: 2px solid var(--gold-2); background: linear-gradient(180deg, #fffdf6, var(--gold-soft)); }
+.fix-text .quote.quran-quote { font-family: 'Amiri Quran', Amiri, serif; line-height: 2.2; }

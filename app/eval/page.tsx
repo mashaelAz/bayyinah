@@ -4,6 +4,7 @@ import { useState } from 'react';
 import PageHead from '../../components/PageHead';
 import cases from '../../data/eval-cases.json';
 import { verifyText } from '../../lib/verify.ts';
+import { checkQuran } from '../../lib/quranClient.ts';
 import { browserProviders } from '../../lib/providers/index.ts';
 import { demoRecords } from '../../lib/providers/demoData.ts';
 import { EXPECT_LABEL, fingerprint, passes, type EvalCase } from '../../lib/evaluation.ts';
@@ -42,7 +43,7 @@ export default function EvalPage() {
       const providers = browserProviders(demoRecords);
       for (const row of out) {
         const t0 = performance.now();
-        const r = await verifyText({ text: row.c.text }, { providers });
+        const r = await verifyText({ text: row.c.text }, { providers, quran: checkQuran });
         row.ms.push(Math.round(performance.now() - t0));
         row.results.push(r);
         done++;

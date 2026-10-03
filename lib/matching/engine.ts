@@ -1,5 +1,5 @@
 import { normalizeArabic, tokenize } from '../arabic/normalize.ts';
-import { charSimilarity, coverage, tokenSimilarity } from './similarity.ts';
+import { charSimilarity, coverage, tokenSimilarity, tokensEquivalent } from './similarity.ts';
 import type { SourceRecord, TextMatch } from '../types.ts';
 
 /**
@@ -39,6 +39,10 @@ function scoreAgainst(queryOriginal: string, q: string[], text: string): Omit<Te
     // كل كلمات النص المدخل موجودة بالترتيب داخل نص المصدر
     return { level: 'phrase', similarity: 1, isPartOfSource: true };
   }
+  if (q.length === 2 && t.length > 2 && openingMatches(q, t, 2)) {
+    // عبارة من كلمتين يُفتتح بها نص المصدر، مثل: «الدين النصيحة»
+    return { level: 'phrase', similarity: 1, isPartOfSource: true };
+  }
   const tokenSim = tokenSimilarity(q, t);
   const charSim = charSimilarity(nQuery, nText);
   const revCov = coverage(t, q);
@@ -47,11 +51,21 @@ function scoreAgainst(queryOriginal: string, q: string[], text: string): Omit<Te
     return { level: 'phrase', similarity: round(0.5 * tokenSim + 0.3 + 0.2 * charSim), isPartOfSource: false };
   }
   // مزيج من: تشابه الكلمات، ونسبة ما ورد من نص المصدر داخل النص المتداول، والتشابه الحرفي
-  return {
-    level: 'fuzzy',
-    similarity: round(0.5 * tokenSim + 0.3 * revCov + 0.2 * charSim),
-    isPartOfSource: false,
-  };
+  let similarity = round(0.5 * tokenSim + 0.3 * revCov + 0.2 * charSim);
+  // النص المتداول يبدأ ببداية الحديث نفسها ثم يُحرَّف أو يُزاد عليه: رواية بلفظ مختلف
+  if (q.length >= 4 && t.length > q.length && openingMatches(q, t, 3)) {
+    const matched = coverage(q, t.slice(0, q.length + 2)) * q.length;
+    if (matched >= 4) similarity = Math.max(similarity, round(Math.min(0.9, 0.6 + 0.3 * (matched / q.length))));
+  }
+  return { level: 'fuzzy', similarity, isPartOfSource: false };
+}
+
+/** هل تتطابق أول n كلمات من النص المدخل مع أول n كلمات من نص المصدر (مع تجاوز «إنما» في أوله)؟ */
+function openingMatches(q: string[], t: string[], n: number): boolean {
+  const src = t[0] === 'انما' && q[0] !== 'انما' ? t.slice(1) : t;
+  if (src.length < n || q.length < n) return false;
+  for (let i = 0; i < n; i++) if (!tokensEquivalent(q[i], src[i])) return false;
+  return true;
 }
 
 function round(n: number): number {

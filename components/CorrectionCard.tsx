@@ -74,6 +74,7 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
   try {
     await Promise.all([
       document.fonts.load('48px Amiri'),
+      document.fonts.load('48px "Amiri Quran"'),
       document.fonts.load('700 48px Amiri'),
       document.fonts.load('800 80px "Noto Kufi Arabic"'),
       document.fonts.load('600 30px "IBM Plex Sans Arabic"'),
@@ -84,7 +85,8 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
   }
 
   const saying = c.kind === 'saying';
-  const warning = c.kind === 'weak' || c.kind === 'review' || c.kind === 'not_found';
+  const quran = c.kind === 'quran' || c.kind === 'quran_variant';
+  const warning = c.kind === 'weak' || c.kind === 'review' || c.kind === 'not_found' || c.kind === 'quran_missing' || c.misattributed;
   // خلفية خزامى فاتحة مع إطار ذهبي
   const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, '#fbf9ff');
@@ -112,6 +114,7 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
 
   // شارة الحالة
   const badge =
+    c.kind === 'quran_missing' ? t('card.quranMissing') : c.misattributed ? t('card.quranMis') : quran ? t('card.quran') :
     saying ? t('card.saying') : c.kind === 'not_found' ? t('card.notFound') : c.kind === 'weak' ? t('card.weak') : c.differ ? t('card.differ') : c.kind === 'review' ? t('card.review') : t('card.ok');
   ctx.direction = dir;
   ctx.font = `600 28px ${uiFont}`;
@@ -127,7 +130,9 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
   const FOOT_Y = H - 92;
   const QR_SIZE = 124;
   const QR_TOP = FOOT_Y - 40 - QR_SIZE;
-  const rulings = saying
+  const rulings = quran
+    ? [{ grade: c.quranRef ?? '', scholar: t('card.mushaf'), source: '', reference: '' }]
+    : saying
     ? c.citedRef
       ? [{ grade: c.citedRef, scholar: t('card.refNote'), source: '', reference: '' }]
       : []
@@ -142,10 +147,10 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
   ctx.direction = 'rtl';
   let y = textTop;
   if (c.text) {
-    if (!warning || saying) {
+    if (!warning || saying || quran) {
       ctx.fillStyle = '#5b6360';
       ctx.font = '36px Amiri, serif';
-      ctx.fillText(saying ? (c.speaker ? `قال ${c.speaker}:` : '') : 'قال رسول الله ﷺ:', W / 2, y + 10, W - 220);
+      ctx.fillText(quran ? 'قال الله تعالى:' : saying ? (c.speaker ? `قال ${c.speaker}:` : '') : 'قال رسول الله ﷺ:', W / 2, y + 10, W - 220);
       y += 40;
     }
     ctx.fillStyle = '#18211d';
@@ -153,9 +158,9 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
     let lines: string[] = [];
     let lh = 0;
     for (;;) {
-      ctx.font = `700 ${size}px Amiri, serif`;
-      lines = wrap(ctx, `«${c.text}»`, W - 220);
-      lh = size * 1.8;
+      ctx.font = quran ? `${size}px "Amiri Quran", Amiri, serif` : `700 ${size}px Amiri, serif`;
+      lines = wrap(ctx, quran ? `﴿${c.text}﴾` : `«${c.text}»`, W - 220);
+      lh = size * (quran ? 2.1 : 1.8);
       if (lines.length * lh <= textBottom - y || size <= 26) break;
       size -= 2;
     }
@@ -196,7 +201,7 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
     ctx.direction = dir;
     ctx.fillStyle = '#5b6360';
     ctx.font = `500 24px ${uiFont}`;
-    ctx.fillText(saying ? t('share.source') : `${t('share.grade')} · ${t('share.source')}`, W / 2, boxTop + 42);
+    ctx.fillText(saying || quran ? t('share.source') : `${t('share.grade')} · ${t('share.source')}`, W / 2, boxTop + 42);
     ctx.direction = 'rtl';
     rulings.forEach((x, i) => {
       const ry = boxTop + 64 + i * ROW;
@@ -208,9 +213,9 @@ async function drawCard(c: Correction, t: T, originalText: string, dir: 'rtl' | 
         ctx.lineTo(W - 160, ry);
         ctx.stroke();
       }
-      ctx.fillStyle = saying ? '#56439a' : toneColor(x.grade);
+      ctx.fillStyle = saying || quran ? '#56439a' : toneColor(x.grade);
       ctx.font = '700 38px Amiri, serif';
-      ctx.fillText(`«${x.grade}»`, W / 2, ry + 40, W - 260);
+      ctx.fillText(quran ? `[${x.grade}]` : `«${x.grade}»`, W / 2, ry + 40, W - 260);
       ctx.fillStyle = '#18211d';
       ctx.font = '28px Amiri, serif';
       ctx.fillText([x.scholar, x.source, x.reference].filter(Boolean).join('، '), W / 2, ry + 78, W - 260);
@@ -248,18 +253,26 @@ export default function CorrectionCard({ result }: { result: VerificationResult 
   const c = buildCorrection(result);
   if (c.kind === 'none') return null;
 
+  const quranKind = c.kind === 'quran' || c.kind === 'quran_variant';
   const intro =
-    c.kind === 'saying'
+    c.partOfLonger
+      ? t('fix.partWeak', { scholar: c.scholar ?? '', grade: c.grade ?? '' })
+      : c.kind === 'quran'
+      ? c.misattributed
+        ? t('fix.quranMis')
+        : t('fix.quran')
+      : c.kind === 'saying'
       ? `${t('fix.saying', { who: c.speaker || t('exp.sayingSomeone') })}${c.citedRef ? ` ${t('exp.sayingRef', { ref: c.citedRef })}` : ''}`
       : c.kind === 'weak'
       ? t('fix.weak', { scholar: c.scholar ?? '', grade: c.grade ?? '' })
       : t(`fix.${c.kind}`);
-  const warning = c.kind === 'weak' || c.kind === 'review' || c.kind === 'not_found' || c.kind === 'saying';
+  const warning =
+    c.kind === 'weak' || c.kind === 'review' || c.kind === 'not_found' || c.kind === 'saying' || c.kind === 'quran_missing' || c.kind === 'quran_variant' || c.misattributed;
   const shareText = correctionShareText(c, {
     grade: t('share.grade'),
     source: t('share.source'),
     footer: t('card.footer'),
-    warning: c.kind === 'saying' ? t('card.saying') : c.kind === 'not_found' ? t('card.notFound') : c.kind === 'weak' ? t('card.weak') : c.differ ? t('card.differ') : t('card.review'),
+    warning: c.kind === 'quran_missing' ? t('card.quranMissing') : c.misattributed ? t('card.quranMis') : c.kind === 'saying' ? t('card.saying') : c.kind === 'not_found' ? t('card.notFound') : c.kind === 'weak' ? t('card.weak') : c.differ ? t('card.differ') : t('card.review'),
   });
 
   async function copy() {
@@ -297,8 +310,18 @@ export default function CorrectionCard({ result }: { result: VerificationResult 
       {c.text ? (
         <div className="fix-text">
           {c.kind === 'saying' && c.speaker ? <p className="fine" style={{ margin: 0 }} lang="ar">قال {c.speaker}:</p> : null}
-          <p className="quote">«{c.text}»</p>
-          {c.kind === 'saying' ? (
+          {quranKind ? (
+            <p className="quote quran-quote" lang="ar">
+              ﴿{c.text}﴾
+            </p>
+          ) : (
+            <p className="quote">«{c.text}»</p>
+          )}
+          {quranKind ? (
+            <p className="fix-cite" lang="ar">
+              {t('card.mushaf')}: [{c.quranRef}]
+            </p>
+          ) : c.kind === 'saying' ? (
             c.citedRef ? (
               <p className="fix-cite" lang="ar">
                 {t('share.source')}: {c.citedRef}
@@ -330,7 +353,7 @@ export default function CorrectionCard({ result }: { result: VerificationResult 
           {copied ? t('fix.copied') : t('fix.copy')}
         </button>
       </div>
-      {c.text ? <p className="fine" style={{ marginBottom: 0 }}>{t('fix.note')}</p> : null}
+      {c.text && !quranKind ? <p className="fine" style={{ marginBottom: 0 }}>{t('fix.note')}</p> : null}
     </section>
   );
 }

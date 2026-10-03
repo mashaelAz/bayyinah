@@ -3,8 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {
-    // نصوص الصحيحين تُقرأ من القرص في دالة الخادم، فنضمها لحزمة النشر
-    outputFileTracingIncludes: { '/api/local': ['./data/sahihayn.json'] },
+    // متون الكتب الستة ونص المصحف تُقرأ من القرص في دالة الخادم، فنضمها لحزمة النشر
+    outputFileTracingIncludes: { '/api/local': ['./data/books.json'], '/api/quran': ['./data/quran.json'] },
   },
 };
 

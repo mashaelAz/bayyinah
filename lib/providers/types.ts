@@ -4,6 +4,8 @@ export interface ProviderSearchResult {
   records: SourceRecord[];
   /** رابط صفحة البحث في المصدر نفسه، ليراجع المستخدم بنفسه */
   searchUrl: string;
+  /** إذا بُحث في مجموعة كتب كاملة معروفة (مثل الكتب الستة)، يُذكر نطاقها هنا */
+  coverage?: 'six_books';
 }
 
 /**

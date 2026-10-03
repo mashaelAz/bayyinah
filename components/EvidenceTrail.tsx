@@ -60,6 +60,12 @@ function describe(t: T, s: EvidenceStep): { label: string; detail?: string } {
       return { label: t('ev.nothing_to_search') };
     case 'not_hadith':
       return { label: t('ev.not_hadith') };
+    case 'six_books':
+      return { label: t('ev.six_books') };
+    case 'quran_found':
+      return { label: t('ev.quran_found', { surah: String(p.surah), ayah: String(p.ayah) }) };
+    case 'quran_missing':
+      return { label: t('ev.quran_missing') };
   }
 }
 
